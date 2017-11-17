@@ -1,0 +1,37 @@
+--- a/gcc/Makefile.in	2011-08-20 02:51:09.000000000 -0500
++++ b/gcc/Makefile.in	2013-11-15 01:21:11.915416300 -0600
+@@ -5175,8 +5175,8 @@ install-po:
+ 	  dir=$(localedir)/$$lang/LC_MESSAGES; \
+ 	  echo $(mkinstalldirs) $(DESTDIR)$$dir; \
+ 	  $(mkinstalldirs) $(DESTDIR)$$dir || exit 1; \
+-	  echo $(INSTALL_DATA) $$cat $(DESTDIR)$$dir/gcc.mo; \
+-	  $(INSTALL_DATA) $$cat $(DESTDIR)$$dir/gcc.mo; \
++	  echo $(INSTALL_DATA) $$cat $(DESTDIR)$$dir/cygwin-gcc.mo; \
++	  $(INSTALL_DATA) $$cat $(DESTDIR)$$dir/cygwin-gcc.mo; \
+ 	done
+ 
+ # Rule for regenerating the message template (gcc.pot).
+--- a/gcc/intl.c	2010-12-01 11:29:12.000000000 -0600
++++ b/gcc/intl.c	2013-11-15 01:21:29.446419000 -0600
+@@ -56,8 +56,8 @@ gcc_init_libintl (void)
+   setlocale (LC_ALL, "");
+ #endif
+ 
+-  (void) bindtextdomain ("gcc", LOCALEDIR);
+-  (void) textdomain ("gcc");
++  (void) bindtextdomain ("cygwin-gcc", LOCALEDIR);
++  (void) textdomain ("cygwin-gcc");
+ 
+   /* Opening quotation mark.  */
+   open_quote = _("`");
+--- a/libcpp/configure	2012-03-01 06:03:46.000000000 -0600
++++ b/libcpp/configure	2013-11-15 01:21:54.401846400 -0600
+@@ -7042,7 +7042,7 @@ _ACEOF
+ 
+ 
+ # More defines and substitutions.
+-PACKAGE="$PACKAGE_TARNAME"
++PACKAGE="cygwin-cpplib"
+ 
+ cat >>confdefs.h <<_ACEOF
+ #define PACKAGE "$PACKAGE"
