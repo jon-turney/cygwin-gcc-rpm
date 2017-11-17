@@ -75,7 +75,6 @@ Patch17:        0017-__cxa-atexit-for-Cygwin.patch
 Patch18:        0018-prevent-modules-from-being-unloaded-before-their-dto.patch
 Patch19:        0019-Cygwin-doesn-t-do-text-mode-translations-for-file-ha.patch
 Patch20:        0020-cygwin-uses-cyg-lib-prefix.patch
-#Patch21:        0021-search-usr-lib-w32api-explicitly.patch
 Patch22:        0022-libgomp-soname-cygwin-mingw.patch
 #Patch23:        0023-glibcxx-use-c99.patch
 Patch24:        0024-libitm-weak-symbols.patch
@@ -352,7 +351,6 @@ Cygwin x86_64 cross-compiler for Ada.
 %patch18 -p1
 %patch19 -p1
 %patch20 -p1
-#patch21 -p1
 %patch22 -p1
 #patch23 -p2
 %patch24 -p1
