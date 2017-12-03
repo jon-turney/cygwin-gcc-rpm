@@ -374,8 +374,8 @@ echo 'Fedora Cygwin %{gcc_version}-%{gcc_release}' > gcc/DEV-PHASE
 # realpath(..., NULL) via _XOPEN_VERSION
 export glibcxx_cv_realpath=yes
 
-mkdir -p build_cyg32
-pushd build_cyg32
+mkdir -p build_32bit
+pushd build_32bit
 
 %if %{build_ada}
 enablelada=,ada
@@ -431,8 +431,8 @@ CC="%{__cc} ${RPM_OPT_FLAGS}" \
   --with-bugurl=http://cygwinports.org
 popd
 
-mkdir -p build_cyg64
-pushd build_cyg64
+mkdir -p build_64bit
+pushd build_64bit
 
 CC="%{__cc} ${RPM_OPT_FLAGS}" \
 ../configure \
