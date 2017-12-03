@@ -547,8 +547,8 @@ find $RPM_BUILD_ROOT -name '*.la' -delete
 
 
 %find_lang cygwin-gcc
-%find_lang cygwin-cpplib
-cat cygwin-cpplib.lang >> cygwin-gcc.lang
+#find_lang cygwin-cpplib
+#cat cygwin-cpplib.lang >> cygwin-gcc.lang
 
 
 %files common -f cygwin-gcc.lang
