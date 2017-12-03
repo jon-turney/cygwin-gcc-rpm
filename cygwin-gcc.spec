@@ -567,7 +567,7 @@ find $RPM_BUILD_ROOT -name '*.la' -delete
 %{_mandir}/man1/%{cygwin32_target}-gcc.1*
 %{_mandir}/man1/%{cygwin32_target}-gcov.1*
 %{_mandir}/man1/%{cygwin32_target}-gcov-dump.1*
-%{_mandir}/man1/%{cygwin32_target}-gcov-tree.1*
+%{_mandir}/man1/%{cygwin32_target}-gcov-tool.1*
 %dir %{_prefix}/lib/gcc/%{cygwin32_target}
 %dir %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}
 %dir %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/include
@@ -718,7 +718,7 @@ find $RPM_BUILD_ROOT -name '*.la' -delete
 %{_mandir}/man1/%{cygwin64_target}-gcc.1*
 %{_mandir}/man1/%{cygwin64_target}-gcov.1*
 %{_mandir}/man1/%{cygwin64_target}-gcov-dump.1*
-%{_mandir}/man1/%{cygwin64_target}-gcov-tree.1*
+%{_mandir}/man1/%{cygwin64_target}-gcov-tool.1*
 %dir %{_prefix}/lib/gcc/%{cygwin64_target}
 %dir %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}
 %dir %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/include
