@@ -562,9 +562,12 @@ find $RPM_BUILD_ROOT -name '*.la' -delete
 %{_bindir}/%{cygwin32_target}-gcc-nm
 %{_bindir}/%{cygwin32_target}-gcc-ranlib
 %{_bindir}/%{cygwin32_target}-gcov
+%{_bindir}/%{cygwin32_target}-gcov-dump
 %{_bindir}/%{cygwin32_target}-gcov-tool
 %{_mandir}/man1/%{cygwin32_target}-gcc.1*
 %{_mandir}/man1/%{cygwin32_target}-gcov.1*
+%{_mandir}/man1/%{cygwin32_target}-gcov-dump.1*
+%{_mandir}/man1/%{cygwin32_target}-gcov-tree.1*
 %dir %{_prefix}/lib/gcc/%{cygwin32_target}
 %dir %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}
 %dir %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/include
@@ -607,9 +610,15 @@ find $RPM_BUILD_ROOT -name '*.la' -delete
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/include/cilk/
 %endif
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/include/ssp/
+%endif
+%{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/plugin/
+%if ! %{bootstrap}
 %{_libexecdir}/gcc/%{cygwin32_target}/%{version}/liblto_plugin.so
 %{_libexecdir}/gcc/%{cygwin32_target}/%{version}/lto1
+%endif
 %{_libexecdir}/gcc/%{cygwin32_target}/%{version}/lto-wrapper
+%{_libexecdir}/gcc/%{cygwin32_target}/%{version}/plugin/
+%if ! %{bootstrap}
 %dir %{_datadir}/gcc-%{gcc_version}
 %dir %{_datadir}/gcc-%{gcc_version}/%{cygwin32_target}
 %{cygwin32_bindir}/cygatomic-1.dll
@@ -704,9 +713,12 @@ find $RPM_BUILD_ROOT -name '*.la' -delete
 %{_bindir}/%{cygwin64_target}-gcc-nm
 %{_bindir}/%{cygwin64_target}-gcc-ranlib
 %{_bindir}/%{cygwin64_target}-gcov
+%{_bindir}/%{cygwin64_target}-gcov-dump
 %{_bindir}/%{cygwin64_target}-gcov-tool
 %{_mandir}/man1/%{cygwin64_target}-gcc.1*
 %{_mandir}/man1/%{cygwin64_target}-gcov.1*
+%{_mandir}/man1/%{cygwin64_target}-gcov-dump.1*
+%{_mandir}/man1/%{cygwin64_target}-gcov-tree.1*
 %dir %{_prefix}/lib/gcc/%{cygwin64_target}
 %dir %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}
 %dir %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/include
@@ -749,9 +761,15 @@ find $RPM_BUILD_ROOT -name '*.la' -delete
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/include/cilk/
 %endif
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/include/ssp/
+%endif
+%{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/plugin/
+%if ! %{bootstrap}
 %{_libexecdir}/gcc/%{cygwin64_target}/%{version}/liblto_plugin.so
 %{_libexecdir}/gcc/%{cygwin64_target}/%{version}/lto1
+%endif
 %{_libexecdir}/gcc/%{cygwin64_target}/%{version}/lto-wrapper
+%{_libexecdir}/gcc/%{cygwin64_target}/%{version}/plugin/
+%if ! %{bootstrap}
 %dir %{_datadir}/gcc-%{gcc_version}
 %dir %{_datadir}/gcc-%{gcc_version}/%{cygwin64_target}
 %{cygwin64_bindir}/cygatomic-1.dll
