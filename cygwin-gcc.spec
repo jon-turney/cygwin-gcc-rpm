@@ -530,12 +530,6 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %{_mandir}/man1/%{cygwin32_target}-gcov-tool.1*
 %dir %{_prefix}/lib/gcc/%{cygwin32_target}
 %dir %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}
-%dir %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/include
-%{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/include/*.h
-%dir %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/install-tools
-%{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/install-tools/*
-%dir %{_libexecdir}/gcc/%{cygwin32_target}/%{version}/install-tools
-%{_libexecdir}/gcc/%{cygwin32_target}/%{version}/install-tools/*
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/crtbegin.o
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/crtbeginS.o
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/crtend.o
@@ -567,11 +561,15 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/libvtv_stubs.a
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/libvtv_stubs.dll.a
 %endif
+%dir %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/include
+%{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/include/*.h
 %if %{build_cilk}
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/include/cilk/
 %endif
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/include/ssp/
+%{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/install-tools/
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/plugin/
+%{_libexecdir}/gcc/%{cygwin32_target}/%{version}/install-tools/
 %{_libexecdir}/gcc/%{cygwin32_target}/%{version}/liblto_plugin.so
 %{_libexecdir}/gcc/%{cygwin32_target}/%{version}/lto1
 %{_libexecdir}/gcc/%{cygwin32_target}/%{version}/lto-wrapper
@@ -639,7 +637,6 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/libgfortran.a
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/libgfortran.dll.a
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/libgfortran.spec
-%{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/libgfortranbegin.a
 %dir %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/finclude
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/finclude/ieee_*
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/finclude/omp_lib*
@@ -673,12 +670,6 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %{_mandir}/man1/%{cygwin64_target}-gcov-tool.1*
 %dir %{_prefix}/lib/gcc/%{cygwin64_target}
 %dir %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}
-%dir %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/include
-%{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/include/*.h
-%dir %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/install-tools
-%{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/install-tools/*
-%dir %{_libexecdir}/gcc/%{cygwin64_target}/%{version}/install-tools
-%{_libexecdir}/gcc/%{cygwin64_target}/%{version}/install-tools/*
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/crtbegin.o
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/crtbeginS.o
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/crtend.o
@@ -710,11 +701,15 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/libvtv_stubs.a
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/libvtv_stubs.dll.a
 %endif
+%dir %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/include
+%{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/include/*.h
 %if %{build_cilk}
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/include/cilk/
 %endif
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/include/ssp/
+%{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/install-tools/
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/plugin/
+%{_libexecdir}/gcc/%{cygwin64_target}/%{version}/install-tools/
 %{_libexecdir}/gcc/%{cygwin64_target}/%{version}/liblto_plugin.so
 %{_libexecdir}/gcc/%{cygwin64_target}/%{version}/lto1
 %{_libexecdir}/gcc/%{cygwin64_target}/%{version}/lto-wrapper
@@ -782,7 +777,6 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/libgfortran.a
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/libgfortran.dll.a
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/libgfortran.spec
-%{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/libgfortranbegin.a
 %dir %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/finclude
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/finclude/ieee_*
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/finclude/omp_lib*
