@@ -8,6 +8,7 @@
 %global build_ada 0
 %global build_cilk 0
 %global build_objc 0
+%global build_vtv 0
 
 Name:           cygwin-gcc
 Version:        %{gcc_version}
@@ -392,6 +393,9 @@ CC="%{__cc} ${RPM_OPT_FLAGS}" \
   --enable-libitm \
   --enable-libssp \
   --enable-libquadmath --enable-libquadmath-support \
+%if %{build_vtv}
+  --enable-vtable-verify \
+%endif
   --with-default-libstdcxx-abi=gcc4-compatible \
   --with-python-dir=/share/gcc-%{gcc_version}/%{cygwin32_target}/python \
 %if %{build_ada}
@@ -438,6 +442,9 @@ CC="%{__cc} ${RPM_OPT_FLAGS}" \
   --enable-libitm \
   --enable-libssp \
   --enable-libquadmath --enable-libquadmath-support \
+%if %{build_vtv}
+  --enable-vtable-verify \
+%endif
   --with-default-libstdcxx-abi=gcc4-compatible \
   --with-python-dir=/share/gcc-%{gcc_version}/%{cygwin64_target}/python \
 %if %{build_ada}
@@ -554,10 +561,12 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/libssp.a
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/libssp_nonshared.a
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/libssp.dll.a
+%if %{build_vtv}
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/libvtv.a
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/libvtv.dll.a
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/libvtv_stubs.a
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/libvtv_stubs.dll.a
+%endif
 %if %{build_cilk}
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/include/cilk/
 %endif
@@ -577,8 +586,10 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %{cygwin32_bindir}/cyggomp-1.dll
 %{cygwin32_bindir}/cygquadmath-0.dll
 %{cygwin32_bindir}/cygssp-0.dll
+%if %{build_vtv}
 %{cygwin32_bindir}/cygvtv-0.dll
 %{cygwin32_bindir}/cygvtv_stubs-0.dll
+%endif
 
 
 %files -n cygwin32-cpp
@@ -693,10 +704,12 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/libssp.a
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/libssp_nonshared.a
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/libssp.dll.a
+%if %{build_vtv}
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/libvtv.a
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/libvtv.dll.a
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/libvtv_stubs.a
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/libvtv_stubs.dll.a
+%endif
 %if %{build_cilk}
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/include/cilk/
 %endif
@@ -716,8 +729,10 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %{cygwin64_bindir}/cyggomp-1.dll
 %{cygwin64_bindir}/cygquadmath-0.dll
 %{cygwin64_bindir}/cygssp-0.dll
+%if %{build_vtv}
 %{cygwin64_bindir}/cygvtv-0.dll
 %{cygwin64_bindir}/cygvtv_stubs-0.dll
+%endif
 
 
 %files -n cygwin64-cpp
@@ -790,6 +805,7 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %changelog
 * Thu Nov 16 2017 Yaakov Selkowitz <yselkowi@redhat.com> - 6.4.0-1
 - new version
+- Disable cilk, libvtv.
 
 * Thu Aug 25 2016 Yaakov Selkowitz <yselkowi@redhat.com> - 5.4.0-2
 - Disable _GNU_SOURCE patch to match native compilers
