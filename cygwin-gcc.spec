@@ -1,8 +1,5 @@
 %global __os_install_post /usr/lib/rpm/brp-compress %{nil}
 
-# Set this to one when cygwin isn't built yet
-%global bootstrap 1
-
 %global gcc_version 6.4.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %%{release}, append them after %%{gcc_release} on Release: line.
@@ -14,7 +11,7 @@
 
 Name:           cygwin-gcc
 Version:        %{gcc_version}
-Release:        0.%{gcc_release}%{?dist}
+Release:        %{gcc_release}%{?dist}
 Summary:        Cygwin GCC cross-compiler
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
@@ -25,17 +22,13 @@ BuildRequires:  texinfo
 BuildRequires:  cygwin32-filesystem
 BuildRequires:  cygwin32-binutils
 BuildRequires:  cygwin32-w32api-headers
-%if ! %{bootstrap}
 BuildRequires:  cygwin32-w32api-runtime
 BuildRequires:  cygwin32 >= 2.4.1
-%endif
 BuildRequires:  cygwin64-filesystem
 BuildRequires:  cygwin64-binutils
 BuildRequires:  cygwin64-w32api-headers
-%if ! %{bootstrap}
 BuildRequires:  cygwin64-w32api-runtime
 BuildRequires:  cygwin64 >= 2.4.1
-%endif
 BuildRequires:  gmp-devel
 BuildRequires:  mpfr-devel
 BuildRequires:  libmpc-devel
@@ -105,15 +98,12 @@ Group:   Development/Languages
 # NB: Explicit cygwin32-filesystem dependency is REQUIRED here.
 Requires:       cygwin32-filesystem
 Requires:       cygwin32-binutils
-%if ! %{bootstrap}
 Requires:       cygwin32-default-manifest
 Requires:       cygwin32-w32api-runtime
 Requires:       cygwin32 >= 2.4.1
-%endif
 Requires:       cygwin32-cpp = %{version}-%{release}
 # We don't run the automatic dependency scripts which would
 # normally detect and provide the following DLL:
-%if ! %{bootstrap}
 Provides:       cygwin32(cygatomic-1.dll)
 %if %{build_cilk}
 Provides:       cygwin32(cygcilkrts-5.dll)
@@ -124,7 +114,6 @@ Provides:       cygwin32(cygquadmath-0.dll)
 Provides:       cygwin32(cygssp-0.dll)
 Provides:       cygwin32(cygvtv-0.dll)
 Provides:       cygwin32(cygvtv_stubs-0.dll)
-%endif
 # prevent update errors
 Obsoletes:      %{name}-java < %{version}-%{release}
 Obsoletes:      cygwin32-gcc-java < %{version}-%{release}
@@ -156,9 +145,7 @@ Group: Development/Languages
 Requires: cygwin32-gcc = %{version}-%{release}
 # We don't run the automatic dependency scripts which would
 # normally detect and provide the following DLL:
-%if ! %{bootstrap}
 Provides:  cygwin32(cygstdc++-6.dll)
-%endif
 
 %description -n cygwin32-gcc-c++
 Cygwin cross-compiler for C++.
@@ -170,9 +157,7 @@ Group: Development/Languages
 Requires: cygwin32-gcc = %{version}-%{release}
 # We don't run the automatic dependency scripts which would
 # normally detect and provide the following DLL:
-%if ! %{bootstrap}
 Provides:  cygwin32(cygobjc-4.dll)
-%endif
 
 %description -n cygwin32-gcc-objc
 Cygwin cross-compiler support for Objective C.
@@ -194,9 +179,7 @@ Group: Development/Languages
 Requires:  cygwin32-gcc = %{version}-%{release}
 # We don't run the automatic dependency scripts which would
 # normally detect and provide the following DLL:
-%if ! %{bootstrap}
 Provides:  cygwin32(cyggfortran-3.dll)
-%endif
 
 %description -n cygwin32-gcc-gfortran
 Cygwin cross-compiler for FORTRAN.
@@ -221,15 +204,12 @@ Group:   Development/Languages
 # NB: Explicit cygwin-filesystem dependency is REQUIRED here.
 Requires:       cygwin64-filesystem
 Requires:       cygwin64-binutils
-%if ! %{bootstrap}
 Requires:       cygwin64-default-manifest
 Requires:       cygwin64-w32api-runtime
 Requires:       cygwin64 >= 2.4.1
-%endif
 Requires:       cygwin64-cpp = %{version}-%{release}
 # We don't run the automatic dependency scripts which would
 # normally detect and provide the following DLLs:
-%if ! %{bootstrap}
 Provides:       cygwin64(cygatomic-1.dll)
 %if %{build_cilk}
 Provides:       cygwin64(cygcilkrts-5.dll)
@@ -240,7 +220,6 @@ Provides:       cygwin64(cygquadmath-0.dll)
 Provides:       cygwin64(cygssp-0.dll)
 Provides:       cygwin64(cygvtv-0.dll)
 Provides:       cygwin64(cygvtv_stubs-0.dll)
-%endif
 # prevent update errors
 %if ! %{build_ada}
 Obsoletes:      cygwin64-gcc-gnat < %{version}-%{release}
@@ -269,9 +248,7 @@ Group: Development/Languages
 Requires: cygwin64-gcc = %{version}-%{release}
 # We don't run the automatic dependency scripts which would
 # normally detect and provide the following DLL:
-%if ! %{bootstrap}
 Provides:  cygwin64(cygstdc++-6.dll)
-%endif
 
 %description -n cygwin64-gcc-c++
 Cygwin x86_64 cross-compiler for C++.
@@ -283,9 +260,7 @@ Group: Development/Languages
 Requires: cygwin64-gcc = %{version}-%{release}
 # We don't run the automatic dependency scripts which would
 # normally detect and provide the following DLL:
-%if ! %{bootstrap}
 Provides:  cygwin64(cygobjc-4.dll)
-%endif
 
 %description -n cygwin64-gcc-objc
 Cygwin x86_64 cross-compiler support for Objective C.
@@ -307,9 +282,7 @@ Group: Development/Languages
 Requires:  cygwin64-gcc = %{version}-%{release}
 # We don't run the automatic dependency scripts which would
 # normally detect and provide the following DLL:
-%if ! %{bootstrap}
 Provides:  cygwin64(cyggfortran-3.dll)
-%endif
 
 %description -n cygwin64-gcc-gfortran
 Cygwin x86_64 cross-compiler for FORTRAN.
@@ -407,13 +380,9 @@ CC="%{__cc} ${RPM_OPT_FLAGS}" \
 %if 0%{?fedora}
   --enable-graphite \
 %endif
-  --enable-languages="c,c++,fortran${enablelada}${enablelobjc}" \
+  --enable-languages="c,c++,fortran,lto${enablelada}${enablelobjc}" \
   --disable-libcc1 \
-%if %{bootstrap}
-  --disable-lto \
-%else
   --enable-lto \
-%endif
   --disable-symvers \
   --enable-libatomic \
 %if %{build_cilk}
@@ -457,13 +426,9 @@ CC="%{__cc} ${RPM_OPT_FLAGS}" \
 %if 0%{?fedora}
   --enable-graphite \
 %endif
-  --enable-languages="c,c++,fortran${enablelada}${enablelobjc}" \
+  --enable-languages="c,c++,fortran,lto${enablelada}${enablelobjc}" \
   --disable-libcc1 \
-%if %{bootstrap}
-  --disable-lto \
-%else
   --enable-lto \
-%endif
   --disable-symvers \
   --enable-libatomic \
 %if %{build_cilk}
@@ -482,19 +447,11 @@ CC="%{__cc} ${RPM_OPT_FLAGS}" \
 
 popd
 
-%if %{bootstrap}
-%cygwin_make %{?_smp_mflags} all-gcc
-%else
 %cygwin_make %{?_smp_mflags} all
-%endif
 
 
 %install
-%if %{bootstrap}
-%cygwin_make DESTDIR=$RPM_BUILD_ROOT install-gcc
-%else
 %cygwin_make_install DESTDIR=$RPM_BUILD_ROOT
-%endif
 
 # These files conflict with existing installed files.
 rm -rf $RPM_BUILD_ROOT%{_infodir}
@@ -511,11 +468,9 @@ ln -sf ..%{_prefix}/bin/%{cygwin32_target}-cpp \
 ln -sf ..%{_prefix}/bin/%{cygwin64_target}-cpp \
   $RPM_BUILD_ROOT/lib/%{cygwin64_target}-cpp
 
-%if ! %{bootstrap}
 # installation bug on multilib platforms
 mv $RPM_BUILD_ROOT%{_prefix}/lib/gcc/%{cygwin64_target}/lib/libgcc_s.dll.a \
   $RPM_BUILD_ROOT%{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_version}/
-%endif
 
 # clean-up include-fixed
 mv $RPM_BUILD_ROOT%{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_version}/include-fixed/*limits.h \
@@ -530,7 +485,6 @@ rm -f $RPM_BUILD_ROOT%{_prefix}/lib/gcc/*/%{version}/libgomp-plugin-host_nonshm.
 
 # libtool installs DLL files of runtime libraries into $(libdir)/../bin,
 # but we need them in cygwin*_bindir.
-%if ! %{bootstrap}
 mkdir -p $RPM_BUILD_ROOT%{cygwin32_bindir}
 mv $RPM_BUILD_ROOT%{_prefix}/lib/gcc/%{cygwin32_target}/*.dll \
   $RPM_BUILD_ROOT%{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_version}/*.dll \
@@ -539,7 +493,6 @@ mkdir -p $RPM_BUILD_ROOT%{cygwin64_bindir}
 mv $RPM_BUILD_ROOT%{_prefix}/lib/gcc/%{cygwin64_target}/*.dll \
   $RPM_BUILD_ROOT%{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_version}/*.dll \
   $RPM_BUILD_ROOT%{cygwin64_bindir}
-%endif
 
 # Don't want the *.la files.
 find $RPM_BUILD_ROOT -name '*.la' -delete
@@ -547,8 +500,8 @@ find $RPM_BUILD_ROOT -name '*.la' -delete
 
 
 %find_lang cygwin-gcc
-#find_lang cygwin-cpplib
-#cat cygwin-cpplib.lang >> cygwin-gcc.lang
+%find_lang cygwin-cpplib
+cat cygwin-cpplib.lang >> cygwin-gcc.lang
 
 
 %files common -f cygwin-gcc.lang
@@ -576,7 +529,6 @@ find $RPM_BUILD_ROOT -name '*.la' -delete
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/install-tools/*
 %dir %{_libexecdir}/gcc/%{cygwin32_target}/%{version}/install-tools
 %{_libexecdir}/gcc/%{cygwin32_target}/%{version}/install-tools/*
-%if ! %{bootstrap}
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/crtbegin.o
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/crtbeginS.o
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/crtend.o
@@ -610,15 +562,11 @@ find $RPM_BUILD_ROOT -name '*.la' -delete
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/include/cilk/
 %endif
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/include/ssp/
-%endif
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/plugin/
-%if ! %{bootstrap}
 %{_libexecdir}/gcc/%{cygwin32_target}/%{version}/liblto_plugin.so
 %{_libexecdir}/gcc/%{cygwin32_target}/%{version}/lto1
-%endif
 %{_libexecdir}/gcc/%{cygwin32_target}/%{version}/lto-wrapper
 %{_libexecdir}/gcc/%{cygwin32_target}/%{version}/plugin/
-%if ! %{bootstrap}
 %dir %{_datadir}/gcc-%{gcc_version}
 %dir %{_datadir}/gcc-%{gcc_version}/%{cygwin32_target}
 %{cygwin32_bindir}/cygatomic-1.dll
@@ -631,7 +579,6 @@ find $RPM_BUILD_ROOT -name '*.la' -delete
 %{cygwin32_bindir}/cygssp-0.dll
 %{cygwin32_bindir}/cygvtv-0.dll
 %{cygwin32_bindir}/cygvtv_stubs-0.dll
-%endif
 
 
 %files -n cygwin32-cpp
@@ -649,7 +596,6 @@ find $RPM_BUILD_ROOT -name '*.la' -delete
 %{_mandir}/man1/%{cygwin32_target}-g++.1*
 %{_libexecdir}/gcc/%{cygwin32_target}/%{version}/cc1plus
 %{_libexecdir}/gcc/%{cygwin32_target}/%{version}/collect2
-%if ! %{bootstrap}
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/include/c++/
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/libstdc++.a
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/libstdc++.dll.a
@@ -658,18 +604,15 @@ find $RPM_BUILD_ROOT -name '*.la' -delete
 %dir %{_datadir}/gcc-%{gcc_version}/%{cygwin32_target}/python
 %{_datadir}/gcc-%{gcc_version}/%{cygwin32_target}/python/libstdcxx/
 %{cygwin32_bindir}/cygstdc++-6.dll
-%endif
 
 
 %if %{build_objc}
 %files -n cygwin32-gcc-objc
 %{_libexecdir}/gcc/%{cygwin32_target}/%{version}/cc1obj
-%if ! %{bootstrap}
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/include/objc/
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/libobjc.a
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/libobjc.dll.a
 %{cygwin32_bindir}/cygobjc-4.dll
-%endif
 
 
 %files -n cygwin32-gcc-objc++
@@ -681,7 +624,6 @@ find $RPM_BUILD_ROOT -name '*.la' -delete
 %{_bindir}/%{cygwin32_target}-gfortran
 %{_mandir}/man1/%{cygwin32_target}-gfortran.1*
 %{_libexecdir}/gcc/%{cygwin32_target}/%{version}/f951
-%if ! %{bootstrap}
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/libcaf_single.a
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/libgfortran.a
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/libgfortran.dll.a
@@ -692,7 +634,6 @@ find $RPM_BUILD_ROOT -name '*.la' -delete
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/finclude/omp_lib*
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/finclude/openacc*
 %{cygwin32_bindir}/cyggfortran-3.dll
-%endif
 
 
 %if %{build_ada}
@@ -727,7 +668,6 @@ find $RPM_BUILD_ROOT -name '*.la' -delete
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/install-tools/*
 %dir %{_libexecdir}/gcc/%{cygwin64_target}/%{version}/install-tools
 %{_libexecdir}/gcc/%{cygwin64_target}/%{version}/install-tools/*
-%if ! %{bootstrap}
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/crtbegin.o
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/crtbeginS.o
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/crtend.o
@@ -761,15 +701,11 @@ find $RPM_BUILD_ROOT -name '*.la' -delete
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/include/cilk/
 %endif
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/include/ssp/
-%endif
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/plugin/
-%if ! %{bootstrap}
 %{_libexecdir}/gcc/%{cygwin64_target}/%{version}/liblto_plugin.so
 %{_libexecdir}/gcc/%{cygwin64_target}/%{version}/lto1
-%endif
 %{_libexecdir}/gcc/%{cygwin64_target}/%{version}/lto-wrapper
 %{_libexecdir}/gcc/%{cygwin64_target}/%{version}/plugin/
-%if ! %{bootstrap}
 %dir %{_datadir}/gcc-%{gcc_version}
 %dir %{_datadir}/gcc-%{gcc_version}/%{cygwin64_target}
 %{cygwin64_bindir}/cygatomic-1.dll
@@ -782,7 +718,6 @@ find $RPM_BUILD_ROOT -name '*.la' -delete
 %{cygwin64_bindir}/cygssp-0.dll
 %{cygwin64_bindir}/cygvtv-0.dll
 %{cygwin64_bindir}/cygvtv_stubs-0.dll
-%endif
 
 
 %files -n cygwin64-cpp
@@ -800,7 +735,6 @@ find $RPM_BUILD_ROOT -name '*.la' -delete
 %{_mandir}/man1/%{cygwin64_target}-g++.1*
 %{_libexecdir}/gcc/%{cygwin64_target}/%{version}/cc1plus
 %{_libexecdir}/gcc/%{cygwin64_target}/%{version}/collect2
-%if ! %{bootstrap}
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/include/c++/
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/libstdc++.a
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/libstdc++.dll.a
@@ -809,18 +743,15 @@ find $RPM_BUILD_ROOT -name '*.la' -delete
 %dir %{_datadir}/gcc-%{gcc_version}/%{cygwin64_target}/python
 %{_datadir}/gcc-%{gcc_version}/%{cygwin64_target}/python/libstdcxx/
 %{cygwin64_bindir}/cygstdc++-6.dll
-%endif
 
 
 %if %{build_objc}
 %files -n cygwin64-gcc-objc
 %{_libexecdir}/gcc/%{cygwin64_target}/%{version}/cc1obj
-%if ! %{bootstrap}
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/include/objc/
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/libobjc.a
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/libobjc.dll.a
 %{cygwin64_bindir}/cygobjc-4.dll
-%endif
 
 
 %files -n cygwin64-gcc-objc++
@@ -832,7 +763,6 @@ find $RPM_BUILD_ROOT -name '*.la' -delete
 %{_bindir}/%{cygwin64_target}-gfortran
 %{_mandir}/man1/%{cygwin64_target}-gfortran.1*
 %{_libexecdir}/gcc/%{cygwin64_target}/%{version}/f951
-%if ! %{bootstrap}
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/libcaf_single.a
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/libgfortran.a
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/libgfortran.dll.a
@@ -843,7 +773,6 @@ find $RPM_BUILD_ROOT -name '*.la' -delete
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/finclude/omp_lib*
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/finclude/openacc*
 %{cygwin64_bindir}/cyggfortran-3.dll
-%endif
 
 
 %if %{build_ada}
