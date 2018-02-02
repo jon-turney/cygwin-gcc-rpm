@@ -3,7 +3,7 @@
 %global gcc_version 6.4.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %%{release}, append them after %%{gcc_release} on Release: line.
-%global gcc_release 1
+%global gcc_release 2
 
 %global build_ada 0
 %global build_cilk 0
@@ -24,12 +24,12 @@ BuildRequires:  cygwin32-filesystem
 BuildRequires:  cygwin32-binutils
 BuildRequires:  cygwin32-w32api-headers
 BuildRequires:  cygwin32-w32api-runtime
-BuildRequires:  cygwin32 >= 2.4.1
+BuildRequires:  cygwin32 >= 2.10.0
 BuildRequires:  cygwin64-filesystem
 BuildRequires:  cygwin64-binutils
 BuildRequires:  cygwin64-w32api-headers
 BuildRequires:  cygwin64-w32api-runtime
-BuildRequires:  cygwin64 >= 2.4.1
+BuildRequires:  cygwin64 >= 2.10.0
 BuildRequires:  gmp-devel
 BuildRequires:  mpfr-devel
 BuildRequires:  libmpc-devel
@@ -77,6 +77,8 @@ Patch25:        0025-enable-libcilkrts.patch
 Patch27:        0027-libtool-w32api.patch
 Patch28:        0028-g++-time.patch
 Patch29:        0029-gcc-specs.patch
+Patch30:        0030-newlib-ftm.patch
+Patch31:        0031-define_std-unix.patch
 
 # Fedora-specific patches
 Patch1000:      1000-cross-exe-suffix.patch
@@ -101,7 +103,7 @@ Requires:       cygwin32-filesystem
 Requires:       cygwin32-binutils
 Requires:       cygwin32-default-manifest
 Requires:       cygwin32-w32api-runtime
-Requires:       cygwin32 >= 2.4.1
+Requires:       cygwin32 >= 2.10.0
 Requires:       cygwin32-cpp = %{version}-%{release}
 # We don't run the automatic dependency scripts which would
 # normally detect and provide the following DLL:
@@ -112,9 +114,10 @@ Provides:       cygwin32(cygcilkrts-5.dll)
 Provides:       cygwin32(cyggcc_s-1.dll)
 Provides:       cygwin32(cyggomp-1.dll)
 Provides:       cygwin32(cygquadmath-0.dll)
-Provides:       cygwin32(cygssp-0.dll)
+%if %{build_vtv}
 Provides:       cygwin32(cygvtv-0.dll)
 Provides:       cygwin32(cygvtv_stubs-0.dll)
+%endif
 # prevent update errors
 Obsoletes:      %{name}-java < %{version}-%{release}
 Obsoletes:      cygwin32-gcc-java < %{version}-%{release}
@@ -207,7 +210,7 @@ Requires:       cygwin64-filesystem
 Requires:       cygwin64-binutils
 Requires:       cygwin64-default-manifest
 Requires:       cygwin64-w32api-runtime
-Requires:       cygwin64 >= 2.4.1
+Requires:       cygwin64 >= 2.10.0
 Requires:       cygwin64-cpp = %{version}-%{release}
 # We don't run the automatic dependency scripts which would
 # normally detect and provide the following DLLs:
@@ -218,9 +221,10 @@ Provides:       cygwin64(cygcilkrts-5.dll)
 Provides:       cygwin64(cyggcc_s-seh-1.dll)
 Provides:       cygwin64(cyggomp-1.dll)
 Provides:       cygwin64(cygquadmath-0.dll)
-Provides:       cygwin64(cygssp-0.dll)
+%if %{build_vtv}
 Provides:       cygwin64(cygvtv-0.dll)
 Provides:       cygwin64(cygvtv_stubs-0.dll)
+%endif
 # prevent update errors
 %if ! %{build_ada}
 Obsoletes:      cygwin64-gcc-gnat < %{version}-%{release}
@@ -335,6 +339,8 @@ Cygwin x86_64 cross-compiler for Ada.
 %patch27 -p2
 %patch28 -p2
 %patch29 -p2
+%patch30 -p2
+%patch31 -p2
 
 %patch1000 -p1
 %patch1001 -p1
@@ -344,6 +350,9 @@ echo 'Fedora Cygwin %{gcc_version}-%{gcc_release}' > gcc/DEV-PHASE
 
 
 %build
+# use built-in SSP with Cygwin 2.10
+# FIXME: --disable-libssp should suffice in GCC 8
+export gcc_cv_libc_provides_ssp=yes
 # configure tries to test SUSv4-compliant behaviour of
 # realpath(..., NULL) via _XOPEN_VERSION
 export glibcxx_cv_realpath=yes
@@ -391,7 +400,7 @@ CC="%{__cc} ${RPM_OPT_FLAGS}" \
 %endif
   --enable-libgomp \
   --enable-libitm \
-  --enable-libssp \
+  --disable-libssp \
   --enable-libquadmath --enable-libquadmath-support \
 %if %{build_vtv}
   --enable-vtable-verify \
@@ -440,7 +449,7 @@ CC="%{__cc} ${RPM_OPT_FLAGS}" \
 %endif
   --enable-libgomp \
   --enable-libitm \
-  --enable-libssp \
+  --disable-libssp \
   --enable-libquadmath --enable-libquadmath-support \
 %if %{build_vtv}
   --enable-vtable-verify \
@@ -552,9 +561,6 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/libitm.spec
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/libquadmath.a
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/libquadmath.dll.a
-%{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/libssp.a
-%{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/libssp_nonshared.a
-%{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/libssp.dll.a
 %if %{build_vtv}
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/libvtv.a
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/libvtv.dll.a
@@ -566,7 +572,6 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %if %{build_cilk}
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/include/cilk/
 %endif
-%{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/include/ssp/
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/install-tools/
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/plugin/
 %{_libexecdir}/gcc/%{cygwin32_target}/%{version}/install-tools/
@@ -583,7 +588,6 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %{cygwin32_bindir}/cyggcc_s-1.dll
 %{cygwin32_bindir}/cyggomp-1.dll
 %{cygwin32_bindir}/cygquadmath-0.dll
-%{cygwin32_bindir}/cygssp-0.dll
 %if %{build_vtv}
 %{cygwin32_bindir}/cygvtv-0.dll
 %{cygwin32_bindir}/cygvtv_stubs-0.dll
@@ -692,9 +696,6 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/libitm.spec
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/libquadmath.a
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/libquadmath.dll.a
-%{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/libssp.a
-%{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/libssp_nonshared.a
-%{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/libssp.dll.a
 %if %{build_vtv}
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/libvtv.a
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/libvtv.dll.a
@@ -706,7 +707,6 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %if %{build_cilk}
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/include/cilk/
 %endif
-%{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/include/ssp/
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/install-tools/
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/plugin/
 %{_libexecdir}/gcc/%{cygwin64_target}/%{version}/install-tools/
@@ -723,7 +723,6 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %{cygwin64_bindir}/cyggcc_s-seh-1.dll
 %{cygwin64_bindir}/cyggomp-1.dll
 %{cygwin64_bindir}/cygquadmath-0.dll
-%{cygwin64_bindir}/cygssp-0.dll
 %if %{build_vtv}
 %{cygwin64_bindir}/cygvtv-0.dll
 %{cygwin64_bindir}/cygvtv_stubs-0.dll
@@ -797,6 +796,10 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 
 
 %changelog
+* Tue Dec 05 2017 Yaakov Selkowitz <yselkowi@redhat.com> - 6.4.0-2
+- Use built-in SSP in Cygwin 2.10
+- Fix definition of unix macro
+
 * Thu Nov 16 2017 Yaakov Selkowitz <yselkowi@redhat.com> - 6.4.0-1
 - new version
 - Disable cilk, libvtv.
