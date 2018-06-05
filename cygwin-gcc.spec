@@ -1,12 +1,11 @@
 %global __os_install_post /usr/lib/rpm/brp-compress %{nil}
 
-%global gcc_version 6.4.0
+%global gcc_version 7.3.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %%{release}, append them after %%{gcc_release} on Release: line.
-%global gcc_release 2
+%global gcc_release 1
 
 %global build_ada 0
-%global build_cilk 0
 %global build_objc 0
 %global build_vtv 0
 
@@ -55,28 +54,24 @@ Patch1:         0001-share-mingw-fset-stack-executable-with-cygwin.patch
 #Patch4:         0004-Cygwin-ioctl-may-emit-EINVAL.patch
 #Patch5:         0005-use-avoid-version-if-not-tracking-SO-version.patch
 #Patch6:         0006-cygwin-uses-cyg-library-prefix.patch
-#Patch7:         0007-Avoid-installing-libffi.patch
+Patch7:         0007-Avoid-installing-libffi-V2.patch
 #Patch8:         0008-libitm-libtool-fixes-for-Cygwin.patch
-Patch9:         0009-Cygwin-uses-sysv-ABI-on-x86_64.patch
+Patch9:         0009-Cygwin-uses-sysv-ABI-on-x86_64-V2.patch
 Patch10:        0010-Do-not-version-lto-plugin-on-cygwin-mingw.patch
 Patch11:        0011-add-dummy-pthread-tsaware-and-large-address-aware-fo.patch
-Patch12:        0012-handle-dllimport-properly-in-medium-model.patch
+Patch12:        0012-handle-dllimport-properly-in-medium-model-V2.patch
 Patch13:        0013-skip-test-for-cygwin-mingw.patch
 Patch14:        0014-64bit-Cygwin-uses-SEH.patch
 Patch15:        0015-define-RTS_CONTROL_ENABLE-and-DTR_CONTROL_ENABLE-for.patch
 Patch16:        0016-fix-some-implicit-declaration-warnings.patch
 Patch17:        0017-__cxa-atexit-for-Cygwin.patch
 Patch18:        0018-prevent-modules-from-being-unloaded-before-their-dto.patch
-Patch19:        0019-Cygwin-doesn-t-do-text-mode-translations-for-file-ha.patch
-Patch20:        0020-cygwin-uses-cyg-lib-prefix.patch
+Patch20:        0020-cygwin-uses-cyg-lib-prefix-v3.patch
 Patch22:        0022-libgomp-soname-cygwin-mingw.patch
 #Patch23:        0023-glibcxx-use-c99.patch
 Patch24:        0024-libitm-weak-symbols.patch
-Patch25:        0025-enable-libcilkrts.patch
 #Patch26:        0026-g++-gnu-source.patch
-Patch27:        0027-libtool-w32api.patch
 Patch28:        0028-g++-time.patch
-Patch29:        0029-gcc-specs.patch
 Patch30:        0030-newlib-ftm.patch
 Patch31:        0031-define_std-unix.patch
 
@@ -108,9 +103,6 @@ Requires:       cygwin32-cpp = %{version}-%{release}
 # We don't run the automatic dependency scripts which would
 # normally detect and provide the following DLL:
 Provides:       cygwin32(cygatomic-1.dll)
-%if %{build_cilk}
-Provides:       cygwin32(cygcilkrts-5.dll)
-%endif
 Provides:       cygwin32(cyggcc_s-1.dll)
 Provides:       cygwin32(cyggomp-1.dll)
 Provides:       cygwin32(cygquadmath-0.dll)
@@ -183,7 +175,7 @@ Group: Development/Languages
 Requires:  cygwin32-gcc = %{version}-%{release}
 # We don't run the automatic dependency scripts which would
 # normally detect and provide the following DLL:
-Provides:  cygwin32(cyggfortran-3.dll)
+Provides:  cygwin32(cyggfortran-4.dll)
 
 %description -n cygwin32-gcc-gfortran
 Cygwin cross-compiler for FORTRAN.
@@ -196,8 +188,8 @@ Requires:  cygwin32-gcc = %{version}-%{release}
 # We don't run the automatic dependency scripts which would
 # normally detect and provide the following DLL:
 # (shared libgnat doesn't work quite right, nor does it cross-build
-#Provides: cygwin32(cyggnat-6.dll)
-#Provides: cygwin32(cyggnarl-6.dll)
+#Provides: cygwin32(cyggnat-7.dll)
+#Provides: cygwin32(cyggnarl-7.dll)
 
 %description -n cygwin32-gcc-gnat
 Cygwin cross-compiler for Ada.
@@ -215,9 +207,6 @@ Requires:       cygwin64-cpp = %{version}-%{release}
 # We don't run the automatic dependency scripts which would
 # normally detect and provide the following DLLs:
 Provides:       cygwin64(cygatomic-1.dll)
-%if %{build_cilk}
-Provides:       cygwin64(cygcilkrts-5.dll)
-%endif
 Provides:       cygwin64(cyggcc_s-seh-1.dll)
 Provides:       cygwin64(cyggomp-1.dll)
 Provides:       cygwin64(cygquadmath-0.dll)
@@ -287,7 +276,7 @@ Group: Development/Languages
 Requires:  cygwin64-gcc = %{version}-%{release}
 # We don't run the automatic dependency scripts which would
 # normally detect and provide the following DLL:
-Provides:  cygwin64(cyggfortran-3.dll)
+Provides:  cygwin64(cyggfortran-4.dll)
 
 %description -n cygwin64-gcc-gfortran
 Cygwin x86_64 cross-compiler for FORTRAN.
@@ -300,8 +289,8 @@ Requires:  cygwin64-gcc = %{version}-%{release}
 # We don't run the automatic dependency scripts which would
 # normally detect and provide the following DLL:
 # (shared libgnat doesn't work quite right, nor does it cross-build
-#Provides: cygwin64(cyggnat-6.dll)
-#Provides: cygwin64(cyggnarl-6.dll)
+#Provides: cygwin64(cyggnat-7.dll)
+#Provides: cygwin64(cyggnarl-7.dll)
 
 %description -n cygwin64-gcc-gnat
 Cygwin x86_64 cross-compiler for Ada.
@@ -315,7 +304,7 @@ Cygwin x86_64 cross-compiler for Ada.
 #patch4 -p1
 #patch5 -p1
 #patch6 -p1
-#patch7 -p1
+%patch7 -p1
 #patch8 -p1
 %patch9 -p1
 %patch10 -p1
@@ -327,18 +316,12 @@ Cygwin x86_64 cross-compiler for Ada.
 %patch16 -p1
 %patch17 -p1
 %patch18 -p1
-%patch19 -p1
 %patch20 -p1
 %patch22 -p1
 #patch23 -p2
 %patch24 -p1
-%if %{build_cilk}
-%patch25 -p2
-%endif
 #patch26 -p2
-%patch27 -p2
 %patch28 -p2
-%patch29 -p2
 %patch30 -p2
 %patch31 -p2
 
@@ -395,13 +378,11 @@ CC="%{__cc} ${RPM_OPT_FLAGS}" \
   --enable-lto \
   --disable-symvers \
   --enable-libatomic \
-%if %{build_cilk}
-  --enable-libcilkrts \
-%endif
   --enable-libgomp \
   --enable-libitm \
   --disable-libssp \
   --enable-libquadmath --enable-libquadmath-support \
+  --enable-libstdcxx-filesystem-ts \
 %if %{build_vtv}
   --enable-vtable-verify \
 %endif
@@ -444,13 +425,11 @@ CC="%{__cc} ${RPM_OPT_FLAGS}" \
   --enable-lto \
   --disable-symvers \
   --enable-libatomic \
-%if %{build_cilk}
-  --enable-libcilkrts \
-%endif
   --enable-libgomp \
   --enable-libitm \
   --disable-libssp \
   --enable-libquadmath --enable-libquadmath-support \
+  --enable-libstdcxx-filesystem-ts \
 %if %{build_vtv}
   --enable-vtable-verify \
 %endif
@@ -545,11 +524,6 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/crtfastmath.o
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/libatomic.a
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/libatomic.dll.a
-%if %{build_cilk}
-%{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/libcilkrts.a
-%{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/libcilkrts.dll.a
-%{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/libcilkrts.spec
-%endif
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/libgcc.a
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/libgcc_eh.a
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/libgcc_s.dll.a
@@ -569,9 +543,6 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %endif
 %dir %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/include
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/include/*.h
-%if %{build_cilk}
-%{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/include/cilk/
-%endif
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/install-tools/
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/plugin/
 %{_libexecdir}/gcc/%{cygwin32_target}/%{version}/install-tools/
@@ -582,9 +553,6 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %dir %{_datadir}/gcc-%{gcc_version}
 %dir %{_datadir}/gcc-%{gcc_version}/%{cygwin32_target}
 %{cygwin32_bindir}/cygatomic-1.dll
-%if %{build_cilk}
-%{cygwin32_bindir}/cygcilkrts-5.dll
-%endif
 %{cygwin32_bindir}/cyggcc_s-1.dll
 %{cygwin32_bindir}/cyggomp-1.dll
 %{cygwin32_bindir}/cygquadmath-0.dll
@@ -613,6 +581,7 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/libstdc++.a
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/libstdc++.dll.a
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/libstdc++.dll.a-gdb.py
+%{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/libstdc++fs.a
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/libsupc++.a
 %dir %{_datadir}/gcc-%{gcc_version}/%{cygwin32_target}/python
 %{_datadir}/gcc-%{gcc_version}/%{cygwin32_target}/python/libstdcxx/
@@ -645,7 +614,7 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/finclude/ieee_*
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/finclude/omp_lib*
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/finclude/openacc*
-%{cygwin32_bindir}/cyggfortran-3.dll
+%{cygwin32_bindir}/cyggfortran-4.dll
 
 
 %if %{build_ada}
@@ -655,8 +624,8 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/adainclude/
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/adalib/
 %{_libexecdir}/gcc/%{cygwin32_target}/%{version}/gnat1
-#%%{cygwin32_bindir}/cyggnarl-6.dll
-#%%{cygwin32_bindir}/cyggnat-6.dll
+#%%{cygwin32_bindir}/cyggnarl-7.dll
+#%%{cygwin32_bindir}/cyggnat-7.dll
 %endif
 
 %files -n cygwin64-gcc
@@ -680,11 +649,6 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/crtfastmath.o
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/libatomic.a
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/libatomic.dll.a
-%if %{build_cilk}
-%{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/libcilkrts.a
-%{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/libcilkrts.dll.a
-%{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/libcilkrts.spec
-%endif
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/libgcc.a
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/libgcc_eh.a
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/libgcc_s.dll.a
@@ -704,9 +668,6 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %endif
 %dir %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/include
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/include/*.h
-%if %{build_cilk}
-%{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/include/cilk/
-%endif
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/install-tools/
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/plugin/
 %{_libexecdir}/gcc/%{cygwin64_target}/%{version}/install-tools/
@@ -717,9 +678,6 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %dir %{_datadir}/gcc-%{gcc_version}
 %dir %{_datadir}/gcc-%{gcc_version}/%{cygwin64_target}
 %{cygwin64_bindir}/cygatomic-1.dll
-%if %{build_cilk}
-%{cygwin64_bindir}/cygcilkrts-5.dll
-%endif
 %{cygwin64_bindir}/cyggcc_s-seh-1.dll
 %{cygwin64_bindir}/cyggomp-1.dll
 %{cygwin64_bindir}/cygquadmath-0.dll
@@ -748,6 +706,7 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/libstdc++.a
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/libstdc++.dll.a
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/libstdc++.dll.a-gdb.py
+%{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/libstdc++fs.a
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/libsupc++.a
 %dir %{_datadir}/gcc-%{gcc_version}/%{cygwin64_target}/python
 %{_datadir}/gcc-%{gcc_version}/%{cygwin64_target}/python/libstdcxx/
@@ -780,7 +739,7 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/finclude/ieee_*
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/finclude/omp_lib*
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/finclude/openacc*
-%{cygwin64_bindir}/cyggfortran-3.dll
+%{cygwin64_bindir}/cyggfortran-4.dll
 
 
 %if %{build_ada}
@@ -790,12 +749,16 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/adainclude/
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/adalib/
 %{_libexecdir}/gcc/%{cygwin64_target}/%{version}/gnat1
-#%%{cygwin64_bindir}/cyggnarl-5.dll
-#%%{cygwin64_bindir}/cyggnat-5.dll
+#%%{cygwin64_bindir}/cyggnarl-7.dll
+#%%{cygwin64_bindir}/cyggnat-7.dll
 %endif
 
 
 %changelog
+* Tue Jun 05 2018 Yaakov Selkowitz <yselkowi@redhat.com> - 7.3.0-1
+- new version
+- Enable libstdc++ Filesystem TS
+
 * Tue Dec 05 2017 Yaakov Selkowitz <yselkowi@redhat.com> - 6.4.0-2
 - Use built-in SSP in Cygwin 2.10
 - Fix definition of unix macro
