@@ -3,7 +3,7 @@
 %global gcc_version 7.3.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %%{release}, append them after %%{gcc_release} on Release: line.
-%global gcc_release 1
+%global gcc_release 2
 
 %global build_ada 0
 %global build_objc 0
@@ -50,10 +50,6 @@ Source0:        ftp://gcc.gnu.org/pub/gcc/releases/gcc-%{gcc_version}/gcc-%{gcc_
 # Cygwin patches
 Patch1:         0001-share-mingw-fset-stack-executable-with-cygwin.patch
 #Patch2:         0002-boehm-gc-for-cygwin.patch
-#Patch3:         0003-AWT-Font-fix-for-Cygwin.patch
-#Patch4:         0004-Cygwin-ioctl-may-emit-EINVAL.patch
-#Patch5:         0005-use-avoid-version-if-not-tracking-SO-version.patch
-#Patch6:         0006-cygwin-uses-cyg-library-prefix.patch
 Patch7:         0007-Avoid-installing-libffi-V2.patch
 #Patch8:         0008-libitm-libtool-fixes-for-Cygwin.patch
 Patch9:         0009-Cygwin-uses-sysv-ABI-on-x86_64-V2.patch
@@ -78,6 +74,9 @@ Patch31:        0031-define_std-unix.patch
 # Fedora-specific patches
 Patch1000:      1000-cross-exe-suffix.patch
 Patch1001:      1001-textdomain.patch
+
+# Upstream patches
+Patch2000:      pr86138.patch
 
 %description
 Cygwin cross-compiler (GCC) suite.
@@ -300,10 +299,6 @@ Cygwin x86_64 cross-compiler for Ada.
 %setup -q -n gcc-%{gcc_version}
 %patch1 -p1
 #patch2 -p1
-#patch3 -p1
-#patch4 -p1
-#patch5 -p1
-#patch6 -p1
 %patch7 -p1
 #patch8 -p1
 %patch9 -p1
@@ -327,6 +322,8 @@ Cygwin x86_64 cross-compiler for Ada.
 
 %patch1000 -p1
 %patch1001 -p1
+
+%patch2000 -p1
 
 echo %{gcc_version} > gcc/BASE-VER
 echo 'Fedora Cygwin %{gcc_version}-%{gcc_release}' > gcc/DEV-PHASE
@@ -755,6 +752,9 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 
 
 %changelog
+* Thu Jul 12 2018 Yaakov Selkowitz <yselkowi@redhat.com> - 7.3.0-2
+- Add patch for PR libstdc++/86138
+
 * Tue Jun 05 2018 Yaakov Selkowitz <yselkowi@redhat.com> - 7.3.0-1
 - new version
 - Enable libstdc++ Filesystem TS
