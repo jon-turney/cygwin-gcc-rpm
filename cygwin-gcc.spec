@@ -18,7 +18,7 @@ License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
 Group:          Development/Languages
 URL:            http://gcc.gnu.org
 
-BuildRequires:  gcc
+BuildRequires:  gcc gcc-c++
 BuildRequires:  texinfo
 BuildRequires:  cygwin32-filesystem
 BuildRequires:  cygwin32-binutils
