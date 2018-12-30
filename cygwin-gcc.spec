@@ -1,9 +1,9 @@
 %global __os_install_post /usr/lib/rpm/brp-compress %{nil}
 
-%global gcc_version 7.3.0
+%global gcc_version 7.4.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %%{release}, append them after %%{gcc_release} on Release: line.
-%global gcc_release 2
+%global gcc_release 1
 
 %global build_ada 0
 %global build_objc 0
@@ -77,7 +77,7 @@ Patch1000:      1000-cross-exe-suffix.patch
 Patch1001:      1001-textdomain.patch
 
 # Upstream patches
-Patch2000:      pr86138.patch
+Patch2001:      pr47030.patch
 
 %description
 Cygwin cross-compiler (GCC) suite.
@@ -324,7 +324,7 @@ Cygwin x86_64 cross-compiler for Ada.
 %patch1000 -p1
 %patch1001 -p1
 
-%patch2000 -p1
+%patch2001 -p2
 
 echo %{gcc_version} > gcc/BASE-VER
 echo 'Fedora Cygwin %{gcc_version}-%{gcc_release}' > gcc/DEV-PHASE
@@ -753,6 +753,10 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 
 
 %changelog
+* Sun Dec 30 2018 Yaakov Selkowitz <yselkowi@redhat.com> - 7.4.0-1
+- new version
+- Add patch for PR fortran/47030
+
 * Thu Jul 12 2018 Yaakov Selkowitz <yselkowi@redhat.com> - 7.3.0-2
 - Add patch for PR libstdc++/86138
 
