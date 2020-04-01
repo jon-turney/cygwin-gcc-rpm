@@ -130,7 +130,7 @@ Group: Development/Languages
 Requires:  cygwin32-gcc = %{version}-%{release}
 # We don't run the automatic dependency scripts which would
 # normally detect and provide the following DLL:
-Provides:  cygwin32(cyggfortran-4.dll)
+Provides:  cygwin32(cyggfortran-5.dll)
 
 %description -n cygwin32-gcc-gfortran
 Cygwin cross-compiler for FORTRAN.
@@ -188,7 +188,7 @@ Group: Development/Languages
 Requires:  cygwin64-gcc = %{version}-%{release}
 # We don't run the automatic dependency scripts which would
 # normally detect and provide the following DLL:
-Provides:  cygwin64(cyggfortran-4.dll)
+Provides:  cygwin64(cyggfortran-5.dll)
 
 %description -n cygwin64-gcc-gfortran
 Cygwin x86_64 cross-compiler for FORTRAN.
@@ -436,7 +436,7 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/finclude/ieee_*
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/finclude/omp_lib*
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/finclude/openacc*
-%{cygwin32_bindir}/cyggfortran-4.dll
+%{cygwin32_bindir}/cyggfortran-5.dll
 
 
 %files -n cygwin64-gcc
@@ -524,7 +524,7 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/finclude/ieee_*
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/finclude/omp_lib*
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/finclude/openacc*
-%{cygwin64_bindir}/cyggfortran-4.dll
+%{cygwin64_bindir}/cyggfortran-5.dll
 
 
 %changelog
