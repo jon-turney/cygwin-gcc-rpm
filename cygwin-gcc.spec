@@ -3,7 +3,7 @@
 %global gcc_version 7.4.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %%{release}, append them after %%{gcc_release} on Release: line.
-%global gcc_release 1
+%global gcc_release 2
 
 %global build_ada 0
 %global build_objc 0
@@ -753,6 +753,9 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 
 
 %changelog
+* Wed Apr 01 2020 Yaakov Selkowitz <yselkowi@redhat.com> - 7.4.0-2
+- Rebuilt for Fedora 32
+
 * Sun Dec 30 2018 Yaakov Selkowitz <yselkowi@redhat.com> - 7.4.0-1
 - new version
 - Add patch for PR fortran/47030
