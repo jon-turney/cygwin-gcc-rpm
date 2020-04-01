@@ -1,13 +1,9 @@
 %global __os_install_post /usr/lib/rpm/brp-compress %{nil}
 
-%global gcc_version 7.4.0
+%global gcc_version 9.3.0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %%{release}, append them after %%{gcc_release} on Release: line.
-%global gcc_release 2
-
-%global build_ada 0
-%global build_objc 0
-%global build_vtv 0
+%global gcc_release 1
 
 Name:           cygwin-gcc
 Version:        %{gcc_version}
@@ -24,60 +20,49 @@ BuildRequires:  cygwin32-filesystem
 BuildRequires:  cygwin32-binutils
 BuildRequires:  cygwin32-w32api-headers
 BuildRequires:  cygwin32-w32api-runtime
-BuildRequires:  cygwin32 >= 2.10.0
+BuildRequires:  cygwin32 >= 3.0.0
 BuildRequires:  cygwin64-filesystem
 BuildRequires:  cygwin64-binutils
 BuildRequires:  cygwin64-w32api-headers
 BuildRequires:  cygwin64-w32api-runtime
-BuildRequires:  cygwin64 >= 2.10.0
+BuildRequires:  cygwin64 >= 3.0.0
 BuildRequires:  gmp-devel
 BuildRequires:  mpfr-devel
 BuildRequires:  libmpc-devel
-%if 0%{?fedora} || 0%{?rhel} >= 7
 BuildRequires:  libstdc++-static
-%endif
-%if 0%{?fedora}
+%if 0%{?fedora} || 0%{?rhel} >= 8
 BuildRequires:  isl-devel >= 0.14
 %endif
 BuildRequires:  zlib-devel
 BuildRequires:  flex
 BuildRequires:  gettext
-%if %{build_ada}
-BuildRequires:  gcc-gnat
-%endif
 
 Source0:        ftp://gcc.gnu.org/pub/gcc/releases/gcc-%{gcc_version}/gcc-%{gcc_version}.tar.xz
 
 # Cygwin patches
-Patch1:         0001-share-mingw-fset-stack-executable-with-cygwin.patch
-#Patch2:         0002-boehm-gc-for-cygwin.patch
 Patch7:         0007-Avoid-installing-libffi-V2.patch
-#Patch8:         0008-libitm-libtool-fixes-for-Cygwin.patch
-Patch9:         0009-Cygwin-uses-sysv-ABI-on-x86_64-V2.patch
 Patch10:        0010-Do-not-version-lto-plugin-on-cygwin-mingw.patch
 Patch11:        0011-add-dummy-pthread-tsaware-and-large-address-aware-fo.patch
 Patch12:        0012-handle-dllimport-properly-in-medium-model-V2.patch
 Patch13:        0013-skip-test-for-cygwin-mingw.patch
-Patch14:        0014-64bit-Cygwin-uses-SEH.patch
-Patch15:        0015-define-RTS_CONTROL_ENABLE-and-DTR_CONTROL_ENABLE-for.patch
 Patch16:        0016-fix-some-implicit-declaration-warnings.patch
 Patch17:        0017-__cxa-atexit-for-Cygwin.patch
-Patch18:        0018-prevent-modules-from-being-unloaded-before-their-dto.patch
-Patch20:        0020-cygwin-uses-cyg-lib-prefix-v3.patch
 Patch22:        0022-libgomp-soname-cygwin-mingw.patch
 #Patch23:        0023-glibcxx-use-c99.patch
-Patch24:        0024-libitm-weak-symbols.patch
 #Patch26:        0026-g++-gnu-source.patch
 Patch28:        0028-g++-time.patch
 Patch30:        0030-newlib-ftm.patch
 Patch31:        0031-define_std-unix.patch
+Patch32:        0032-libstdc-use-lt_host_flags-for-libstdc-.la.patch
+Patch33:        0033-libstdc-regenerate-src-Makefile.in-for-lt_host_flags.patch
+Patch34:        0034-libstdc-use-a-link-test-to-test-for-Wl-z-relro.patch
+Patch35:        0035-libstdc-regenerate-configure.patch
 
 # Fedora-specific patches
-Patch1000:      1000-cross-exe-suffix.patch
 Patch1001:      1001-textdomain.patch
 
 # Upstream patches
-Patch2001:      pr47030.patch
+#Patch2001:      pr47030.patch
 
 %description
 Cygwin cross-compiler (GCC) suite.
@@ -98,7 +83,7 @@ Requires:       cygwin32-filesystem
 Requires:       cygwin32-binutils
 Requires:       cygwin32-default-manifest
 Requires:       cygwin32-w32api-runtime
-Requires:       cygwin32 >= 2.10.0
+Requires:       cygwin32 >= 3.0.0
 Requires:       cygwin32-cpp = %{version}-%{release}
 # We don't run the automatic dependency scripts which would
 # normally detect and provide the following DLL:
@@ -106,20 +91,12 @@ Provides:       cygwin32(cygatomic-1.dll)
 Provides:       cygwin32(cyggcc_s-1.dll)
 Provides:       cygwin32(cyggomp-1.dll)
 Provides:       cygwin32(cygquadmath-0.dll)
-%if %{build_vtv}
-Provides:       cygwin32(cygvtv-0.dll)
-Provides:       cygwin32(cygvtv_stubs-0.dll)
-%endif
 # prevent update errors
 Obsoletes:      %{name}-java < %{version}-%{release}
 Obsoletes:      cygwin32-gcc-java < %{version}-%{release}
-%if ! %{build_ada}
 Obsoletes:      cygwin32-gcc-gnat < %{version}-%{release}
-%endif
-%if ! %{build_objc}
 Obsoletes:      cygwin32-gcc-objc < %{version}-%{release}
 Obsoletes:      cygwin32-gcc-objc++ < %{version}-%{release}
-%endif
 
 
 %description -n cygwin32-gcc
@@ -147,28 +124,6 @@ Provides:  cygwin32(cygstdc++-6.dll)
 Cygwin cross-compiler for C++.
 
 
-%package -n cygwin32-gcc-objc
-Summary: Cygwin cross-compiler support for Objective C
-Group: Development/Languages
-Requires: cygwin32-gcc = %{version}-%{release}
-# We don't run the automatic dependency scripts which would
-# normally detect and provide the following DLL:
-Provides:  cygwin32(cygobjc-4.dll)
-
-%description -n cygwin32-gcc-objc
-Cygwin cross-compiler support for Objective C.
-
-
-%package -n cygwin32-gcc-objc++
-Summary: Cygwin cross-compiler support for Objective C++
-Group: Development/Languages
-Requires:  cygwin32-gcc-c++ = %{version}-%{release}
-Requires:  cygwin32-gcc-objc = %{version}-%{release}
-
-%description -n cygwin32-gcc-objc++
-Cygwin cross-compiler support for Objective C++.
-
-
 %package -n cygwin32-gcc-gfortran
 Summary: Cygwin cross-compiler for FORTRAN
 Group: Development/Languages
@@ -181,19 +136,6 @@ Provides:  cygwin32(cyggfortran-4.dll)
 Cygwin cross-compiler for FORTRAN.
 
 
-%package -n cygwin32-gcc-gnat
-Summary: Cygwin cross-compiler for Ada
-Group: Development/Languages
-Requires:  cygwin32-gcc = %{version}-%{release}
-# We don't run the automatic dependency scripts which would
-# normally detect and provide the following DLL:
-# (shared libgnat doesn't work quite right, nor does it cross-build
-#Provides: cygwin32(cyggnat-7.dll)
-#Provides: cygwin32(cyggnarl-7.dll)
-
-%description -n cygwin32-gcc-gnat
-Cygwin cross-compiler for Ada.
-
 %package -n cygwin64-gcc
 Summary: Cygwin64 cross-compiler for C
 Group:   Development/Languages
@@ -202,7 +144,7 @@ Requires:       cygwin64-filesystem
 Requires:       cygwin64-binutils
 Requires:       cygwin64-default-manifest
 Requires:       cygwin64-w32api-runtime
-Requires:       cygwin64 >= 2.10.0
+Requires:       cygwin64 >= 3.0.0
 Requires:       cygwin64-cpp = %{version}-%{release}
 # We don't run the automatic dependency scripts which would
 # normally detect and provide the following DLLs:
@@ -210,18 +152,10 @@ Provides:       cygwin64(cygatomic-1.dll)
 Provides:       cygwin64(cyggcc_s-seh-1.dll)
 Provides:       cygwin64(cyggomp-1.dll)
 Provides:       cygwin64(cygquadmath-0.dll)
-%if %{build_vtv}
-Provides:       cygwin64(cygvtv-0.dll)
-Provides:       cygwin64(cygvtv_stubs-0.dll)
-%endif
 # prevent update errors
-%if ! %{build_ada}
 Obsoletes:      cygwin64-gcc-gnat < %{version}-%{release}
-%endif
-%if ! %{build_objc}
 Obsoletes:      cygwin64-gcc-objc < %{version}-%{release}
 Obsoletes:      cygwin64-gcc-objc++ < %{version}-%{release}
-%endif
 
 
 %description -n cygwin64-gcc
@@ -248,28 +182,6 @@ Provides:  cygwin64(cygstdc++-6.dll)
 Cygwin x86_64 cross-compiler for C++.
 
 
-%package -n cygwin64-gcc-objc
-Summary: Cygwin64 cross-compiler support for Objective C
-Group: Development/Languages
-Requires: cygwin64-gcc = %{version}-%{release}
-# We don't run the automatic dependency scripts which would
-# normally detect and provide the following DLL:
-Provides:  cygwin64(cygobjc-4.dll)
-
-%description -n cygwin64-gcc-objc
-Cygwin x86_64 cross-compiler support for Objective C.
-
-
-%package -n cygwin64-gcc-objc++
-Summary: Cygwin64 cross-compiler support for Objective C++
-Group: Development/Languages
-Requires:  cygwin64-gcc-c++ = %{version}-%{release}
-Requires:  cygwin64-gcc-objc = %{version}-%{release}
-
-%description -n cygwin64-gcc-objc++
-Cygwin x86_64 cross-compiler support for Objective C++.
-
-
 %package -n cygwin64-gcc-gfortran
 Summary: Cygwin64 cross-compiler for FORTRAN
 Group: Development/Languages
@@ -282,49 +194,8 @@ Provides:  cygwin64(cyggfortran-4.dll)
 Cygwin x86_64 cross-compiler for FORTRAN.
 
 
-%package -n cygwin64-gcc-gnat
-Summary: Cygwin64 cross-compiler for Ada
-Group: Development/Languages
-Requires:  cygwin64-gcc = %{version}-%{release}
-# We don't run the automatic dependency scripts which would
-# normally detect and provide the following DLL:
-# (shared libgnat doesn't work quite right, nor does it cross-build
-#Provides: cygwin64(cyggnat-7.dll)
-#Provides: cygwin64(cyggnarl-7.dll)
-
-%description -n cygwin64-gcc-gnat
-Cygwin x86_64 cross-compiler for Ada.
-
-
 %prep
-%setup -q -n gcc-%{gcc_version}
-%patch1 -p1
-#patch2 -p1
-%patch7 -p1
-#patch8 -p1
-%patch9 -p1
-%patch10 -p1
-%patch11 -p1
-%patch12 -p1
-%patch13 -p1
-%patch14 -p1
-%patch15 -p1
-%patch16 -p1
-%patch17 -p1
-%patch18 -p1
-%patch20 -p1
-%patch22 -p1
-#patch23 -p2
-%patch24 -p1
-#patch26 -p2
-%patch28 -p2
-%patch30 -p2
-%patch31 -p2
-
-%patch1000 -p1
-%patch1001 -p1
-
-%patch2001 -p2
+%autosetup -n gcc-%{gcc_version} -p1
 
 echo %{gcc_version} > gcc/BASE-VER
 echo 'Fedora Cygwin %{gcc_version}-%{gcc_release}' > gcc/DEV-PHASE
@@ -340,13 +211,6 @@ export glibcxx_cv_realpath=yes
 
 mkdir -p build_32bit
 pushd build_32bit
-
-%if %{build_ada}
-enablelada=,ada
-%endif
-%if %{build_objc}
-enablelobjc=,objc,obj-c++
-%endif
 
 CC="%{__cc} ${RPM_OPT_FLAGS}" \
 ../configure \
@@ -371,24 +235,17 @@ CC="%{__cc} ${RPM_OPT_FLAGS}" \
 %if 0%{?fedora}
   --enable-graphite \
 %endif
-  --enable-languages="c,c++,fortran,lto${enablelada}${enablelobjc}" \
+  --enable-languages="c,c++,fortran,lto" \
   --disable-libcc1 \
   --enable-lto \
   --disable-symvers \
   --enable-libatomic \
   --enable-libgomp \
-  --enable-libitm \
   --disable-libssp \
   --enable-libquadmath --enable-libquadmath-support \
   --enable-libstdcxx-filesystem-ts \
-%if %{build_vtv}
-  --enable-vtable-verify \
-%endif
   --with-default-libstdcxx-abi=gcc4-compatible \
   --with-python-dir=/share/gcc-%{gcc_version}/%{cygwin32_target}/python \
-%if %{build_ada}
-  --enable-libada \
-%endif
   --with-bugurl=http://cygwinports.org
 popd
 
@@ -418,24 +275,17 @@ CC="%{__cc} ${RPM_OPT_FLAGS}" \
 %if 0%{?fedora}
   --enable-graphite \
 %endif
-  --enable-languages="c,c++,fortran,lto${enablelada}${enablelobjc}" \
+  --enable-languages="c,c++,fortran,lto" \
   --disable-libcc1 \
   --enable-lto \
   --disable-symvers \
   --enable-libatomic \
   --enable-libgomp \
-  --enable-libitm \
   --disable-libssp \
   --enable-libquadmath --enable-libquadmath-support \
   --enable-libstdcxx-filesystem-ts \
-%if %{build_vtv}
-  --enable-vtable-verify \
-%endif
   --with-default-libstdcxx-abi=gcc4-compatible \
   --with-python-dir=/share/gcc-%{gcc_version}/%{cygwin64_target}/python \
-%if %{build_ada}
-  --enable-libada \
-%endif
   --with-bugurl=http://cygwinports.org
 
 popd
@@ -529,16 +379,8 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/libgomp.a
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/libgomp.dll.a
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/libgomp.spec
-%{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/libitm.a
-%{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/libitm.spec
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/libquadmath.a
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/libquadmath.dll.a
-%if %{build_vtv}
-%{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/libvtv.a
-%{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/libvtv.dll.a
-%{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/libvtv_stubs.a
-%{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/libvtv_stubs.dll.a
-%endif
 %dir %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/include
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/include/*.h
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/install-tools/
@@ -554,10 +396,6 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %{cygwin32_bindir}/cyggcc_s-1.dll
 %{cygwin32_bindir}/cyggomp-1.dll
 %{cygwin32_bindir}/cygquadmath-0.dll
-%if %{build_vtv}
-%{cygwin32_bindir}/cygvtv-0.dll
-%{cygwin32_bindir}/cygvtv_stubs-0.dll
-%endif
 
 
 %files -n cygwin32-cpp
@@ -586,20 +424,6 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %{cygwin32_bindir}/cygstdc++-6.dll
 
 
-%if %{build_objc}
-%files -n cygwin32-gcc-objc
-%{_libexecdir}/gcc/%{cygwin32_target}/%{version}/cc1obj
-%{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/include/objc/
-%{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/libobjc.a
-%{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/libobjc.dll.a
-%{cygwin32_bindir}/cygobjc-4.dll
-
-
-%files -n cygwin32-gcc-objc++
-%{_libexecdir}/gcc/%{cygwin32_target}/%{version}/cc1objplus
-%endif
-
-
 %files -n cygwin32-gcc-gfortran
 %{_bindir}/%{cygwin32_target}-gfortran
 %{_mandir}/man1/%{cygwin32_target}-gfortran.1*
@@ -614,17 +438,6 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/finclude/openacc*
 %{cygwin32_bindir}/cyggfortran-4.dll
 
-
-%if %{build_ada}
-%files -n cygwin32-gcc-gnat
-%{_bindir}/%{cygwin32_target}-gnat*
-#%%{_mandir}/man1/%%{cygwin32_target}-gnat*.1*
-%{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/adainclude/
-%{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/adalib/
-%{_libexecdir}/gcc/%{cygwin32_target}/%{version}/gnat1
-#%%{cygwin32_bindir}/cyggnarl-7.dll
-#%%{cygwin32_bindir}/cyggnat-7.dll
-%endif
 
 %files -n cygwin64-gcc
 %{_bindir}/%{cygwin64_target}-gcc
@@ -654,16 +467,8 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/libgomp.a
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/libgomp.dll.a
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/libgomp.spec
-%{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/libitm.a
-%{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/libitm.spec
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/libquadmath.a
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/libquadmath.dll.a
-%if %{build_vtv}
-%{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/libvtv.a
-%{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/libvtv.dll.a
-%{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/libvtv_stubs.a
-%{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/libvtv_stubs.dll.a
-%endif
 %dir %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/include
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/include/*.h
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/install-tools/
@@ -679,10 +484,6 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %{cygwin64_bindir}/cyggcc_s-seh-1.dll
 %{cygwin64_bindir}/cyggomp-1.dll
 %{cygwin64_bindir}/cygquadmath-0.dll
-%if %{build_vtv}
-%{cygwin64_bindir}/cygvtv-0.dll
-%{cygwin64_bindir}/cygvtv_stubs-0.dll
-%endif
 
 
 %files -n cygwin64-cpp
@@ -711,20 +512,6 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %{cygwin64_bindir}/cygstdc++-6.dll
 
 
-%if %{build_objc}
-%files -n cygwin64-gcc-objc
-%{_libexecdir}/gcc/%{cygwin64_target}/%{version}/cc1obj
-%{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/include/objc/
-%{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/libobjc.a
-%{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/libobjc.dll.a
-%{cygwin64_bindir}/cygobjc-4.dll
-
-
-%files -n cygwin64-gcc-objc++
-%{_libexecdir}/gcc/%{cygwin64_target}/%{version}/cc1objplus
-%endif
-
-
 %files -n cygwin64-gcc-gfortran
 %{_bindir}/%{cygwin64_target}-gfortran
 %{_mandir}/man1/%{cygwin64_target}-gfortran.1*
@@ -740,21 +527,9 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %{cygwin64_bindir}/cyggfortran-4.dll
 
 
-%if %{build_ada}
-%files -n cygwin64-gcc-gnat
-%{_bindir}/%{cygwin64_target}-gnat*
-#%%{_mandir}/man1/%%{cygwin64_target}-gnat*.1*
-%{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/adainclude/
-%{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/adalib/
-%{_libexecdir}/gcc/%{cygwin64_target}/%{version}/gnat1
-#%%{cygwin64_bindir}/cyggnarl-7.dll
-#%%{cygwin64_bindir}/cyggnat-7.dll
-%endif
-
-
 %changelog
-* Wed Apr 01 2020 Yaakov Selkowitz <yselkowi@redhat.com> - 7.4.0-2
-- Rebuilt for Fedora 32
+* Wed Apr 01 2020 Yaakov Selkowitz <yselkowi@redhat.com> - 9.3.0-1
+- new version
 
 * Sun Dec 30 2018 Yaakov Selkowitz <yselkowi@redhat.com> - 7.4.0-1
 - new version
