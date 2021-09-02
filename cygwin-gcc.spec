@@ -1,12 +1,14 @@
 %global __os_install_post /usr/lib/rpm/brp-compress %{nil}
 
-%global gcc_version 9.3.0
+%global gcc_major 11
+%global gcc_minor 2
+%global gcc_micro 0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %%{release}, append them after %%{gcc_release} on Release: line.
 %global gcc_release 1
 
 Name:           cygwin-gcc
-Version:        %{gcc_version}
+Version:        %{gcc_major}.%{gcc_minor}.%{gcc_micro}
 Release:        %{gcc_release}%{?dist}
 Summary:        Cygwin GCC cross-compiler
 
@@ -37,26 +39,18 @@ BuildRequires:  zlib-devel
 BuildRequires:  flex
 BuildRequires:  gettext
 
-Source0:        ftp://gcc.gnu.org/pub/gcc/releases/gcc-%{gcc_version}/gcc-%{gcc_version}.tar.xz
+Source0:        https://gcc.gnu.org/pub/gcc/releases/gcc-%{version}/gcc-%{version}.tar.xz
 
 # Cygwin patches
-Patch7:         0007-Avoid-installing-libffi-V2.patch
-Patch10:        0010-Do-not-version-lto-plugin-on-cygwin-mingw.patch
-Patch11:        0011-add-dummy-pthread-tsaware-and-large-address-aware-fo.patch
-Patch12:        0012-handle-dllimport-properly-in-medium-model-V2.patch
-Patch13:        0013-skip-test-for-cygwin-mingw.patch
-Patch16:        0016-fix-some-implicit-declaration-warnings.patch
-Patch17:        0017-__cxa-atexit-for-Cygwin.patch
-Patch22:        0022-libgomp-soname-cygwin-mingw.patch
-#Patch23:        0023-glibcxx-use-c99.patch
-#Patch26:        0026-g++-gnu-source.patch
-Patch28:        0028-g++-time.patch
-Patch30:        0030-newlib-ftm.patch
-Patch31:        0031-define_std-unix.patch
-Patch32:        0032-libstdc-use-lt_host_flags-for-libstdc-.la.patch
-Patch33:        0033-libstdc-regenerate-src-Makefile.in-for-lt_host_flags.patch
-Patch34:        0034-libstdc-use-a-link-test-to-test-for-Wl-z-relro.patch
-Patch35:        0035-libstdc-regenerate-configure.patch
+Patch2:         0002-Cygwin-add-dummy-pthread-tsaware-and-large-address-a.patch
+Patch3:         0003-Cygwin-handle-dllimport-properly-in-medium-model-V2.patch
+Patch4:         0004-Cygwin-MinGW-skip-test.patch
+Patch6:         0006-Cygwin-fix-some-implicit-declaration-warnings-and-re.patch
+Patch7:         0007-Cygwin-__cxa-atexit.patch
+Patch8:         0008-Cygwin-libgomp-soname.patch
+Patch9:         0009-Cygwin-g-time.patch
+Patch10:        0010-Cygwin-newlib-ftm.patch
+Patch11:        0011-Cygwin-define-STD_UNIX.patch
 
 # Fedora-specific patches
 Patch1001:      1001-textdomain.patch
@@ -195,10 +189,9 @@ Cygwin x86_64 cross-compiler for FORTRAN.
 
 
 %prep
-%autosetup -n gcc-%{gcc_version} -p1
+%autosetup -n gcc-%{version} -p1
 
-echo %{gcc_version} > gcc/BASE-VER
-echo 'Fedora Cygwin %{gcc_version}-%{gcc_release}' > gcc/DEV-PHASE
+echo 'Fedora Cygwin %{version}-%{gcc_release}' > gcc/DEV-PHASE
 
 
 %build
@@ -229,6 +222,7 @@ CC="%{__cc} ${RPM_OPT_FLAGS}" \
   --disable-win32-registry \
   --enable-threads=posix \
   --enable-version-specific-runtime-libs \
+  --with-gcc-major-version-only \
   --with-sysroot=%{cygwin32_sysroot} \
   --enable-shared --enable-shared-libgcc --enable-__cxa_atexit \
   --with-dwarf2 --disable-sjlj-exceptions \
@@ -245,8 +239,8 @@ CC="%{__cc} ${RPM_OPT_FLAGS}" \
   --enable-libquadmath --enable-libquadmath-support \
   --enable-libstdcxx-filesystem-ts \
   --with-default-libstdcxx-abi=gcc4-compatible \
-  --with-python-dir=/share/gcc-%{gcc_version}/%{cygwin32_target}/python \
-  --with-bugurl=http://cygwinports.org
+  --with-python-dir=/share/gcc-%{gcc_major}/%{cygwin32_target}/python \
+  --with-bugurl=https://copr.fedorainfracloud.org/coprs/yselkowitz/cygwin/
 popd
 
 mkdir -p build_64bit
@@ -269,6 +263,7 @@ CC="%{__cc} ${RPM_OPT_FLAGS}" \
   --disable-win32-registry \
   --enable-threads=posix \
   --enable-version-specific-runtime-libs \
+  --with-gcc-major-version-only \
   --with-sysroot=%{cygwin64_sysroot} \
   --enable-shared --enable-shared-libgcc --enable-__cxa_atexit \
   --with-dwarf2 \
@@ -285,8 +280,8 @@ CC="%{__cc} ${RPM_OPT_FLAGS}" \
   --enable-libquadmath --enable-libquadmath-support \
   --enable-libstdcxx-filesystem-ts \
   --with-default-libstdcxx-abi=gcc4-compatible \
-  --with-python-dir=/share/gcc-%{gcc_version}/%{cygwin64_target}/python \
-  --with-bugurl=http://cygwinports.org
+  --with-python-dir=/share/gcc-%{gcc_major}/%{cygwin64_target}/python \
+  --with-bugurl=https://copr.fedorainfracloud.org/coprs/yselkowitz/cygwin/
 
 popd
 
@@ -313,28 +308,28 @@ ln -sf ..%{_prefix}/bin/%{cygwin64_target}-cpp \
 
 # installation bug on multilib platforms
 mv $RPM_BUILD_ROOT%{_prefix}/lib/gcc/%{cygwin64_target}/lib/libgcc_s.dll.a \
-  $RPM_BUILD_ROOT%{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_version}/
+  $RPM_BUILD_ROOT%{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/
 
 # clean-up include-fixed
-mv $RPM_BUILD_ROOT%{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_version}/include-fixed/*limits.h \
-  $RPM_BUILD_ROOT%{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_version}/include/
-mv $RPM_BUILD_ROOT%{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_version}/include-fixed/*limits.h \
-  $RPM_BUILD_ROOT%{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_version}/include/
-rm -fr $RPM_BUILD_ROOT%{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_version}/include-fixed/
-rm -fr $RPM_BUILD_ROOT%{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_version}/include-fixed/
+mv $RPM_BUILD_ROOT%{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/include-fixed/*limits.h \
+  $RPM_BUILD_ROOT%{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/include/
+mv $RPM_BUILD_ROOT%{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/include-fixed/*limits.h \
+  $RPM_BUILD_ROOT%{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/include/
+rm -fr $RPM_BUILD_ROOT%{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/include-fixed/
+rm -fr $RPM_BUILD_ROOT%{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/include-fixed/
 
 # This is a runtime plugin of libgomp, not a link library
-rm -f $RPM_BUILD_ROOT%{_prefix}/lib/gcc/*/%{version}/libgomp-plugin-host_nonshm.dll.a
+rm -f $RPM_BUILD_ROOT%{_prefix}/lib/gcc/*/%{gcc_major}/libgomp-plugin-host_nonshm.dll.a
 
 # libtool installs DLL files of runtime libraries into $(libdir)/../bin,
 # but we need them in cygwin*_bindir.
 mkdir -p $RPM_BUILD_ROOT%{cygwin32_bindir}
 mv $RPM_BUILD_ROOT%{_prefix}/lib/gcc/%{cygwin32_target}/*.dll \
-  $RPM_BUILD_ROOT%{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_version}/*.dll \
+  $RPM_BUILD_ROOT%{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/*.dll \
   $RPM_BUILD_ROOT%{cygwin32_bindir}
 mkdir -p $RPM_BUILD_ROOT%{cygwin64_bindir}
 mv $RPM_BUILD_ROOT%{_prefix}/lib/gcc/%{cygwin64_target}/*.dll \
-  $RPM_BUILD_ROOT%{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_version}/*.dll \
+  $RPM_BUILD_ROOT%{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/*.dll \
   $RPM_BUILD_ROOT%{cygwin64_bindir}
 
 # Don't want the *.la files.
@@ -353,7 +348,7 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 
 %files -n cygwin32-gcc
 %{_bindir}/%{cygwin32_target}-gcc
-%{_bindir}/%{cygwin32_target}-gcc-%{version}
+%{_bindir}/%{cygwin32_target}-gcc-%{gcc_major}
 %{_bindir}/%{cygwin32_target}-gcc-ar
 %{_bindir}/%{cygwin32_target}-gcc-nm
 %{_bindir}/%{cygwin32_target}-gcc-ranlib
@@ -365,33 +360,33 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %{_mandir}/man1/%{cygwin32_target}-gcov-dump.1*
 %{_mandir}/man1/%{cygwin32_target}-gcov-tool.1*
 %dir %{_prefix}/lib/gcc/%{cygwin32_target}
-%dir %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}
-%{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/crtbegin.o
-%{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/crtbeginS.o
-%{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/crtend.o
-%{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/crtfastmath.o
-%{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/libatomic.a
-%{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/libatomic.dll.a
-%{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/libgcc.a
-%{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/libgcc_eh.a
-%{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/libgcc_s.dll.a
-%{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/libgcov.a
-%{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/libgomp.a
-%{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/libgomp.dll.a
-%{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/libgomp.spec
-%{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/libquadmath.a
-%{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/libquadmath.dll.a
-%dir %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/include
-%{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/include/*.h
-%{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/install-tools/
-%{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/plugin/
-%{_libexecdir}/gcc/%{cygwin32_target}/%{version}/install-tools/
-%{_libexecdir}/gcc/%{cygwin32_target}/%{version}/liblto_plugin.so
-%{_libexecdir}/gcc/%{cygwin32_target}/%{version}/lto1
-%{_libexecdir}/gcc/%{cygwin32_target}/%{version}/lto-wrapper
-%{_libexecdir}/gcc/%{cygwin32_target}/%{version}/plugin/
-%dir %{_datadir}/gcc-%{gcc_version}
-%dir %{_datadir}/gcc-%{gcc_version}/%{cygwin32_target}
+%dir %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}
+%{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/crtbegin.o
+%{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/crtbeginS.o
+%{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/crtend.o
+%{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/crtfastmath.o
+%{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libatomic.a
+%{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libatomic.dll.a
+%{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libgcc.a
+%{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libgcc_eh.a
+%{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libgcc_s.dll.a
+%{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libgcov.a
+%{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libgomp.a
+%{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libgomp.dll.a
+%{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libgomp.spec
+%{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libquadmath.a
+%{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libquadmath.dll.a
+%dir %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/include
+%{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/include/*.h
+%{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/install-tools/
+%{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/plugin/
+%{_libexecdir}/gcc/%{cygwin32_target}/%{gcc_major}/install-tools/
+%{_libexecdir}/gcc/%{cygwin32_target}/%{gcc_major}/liblto_plugin.so
+%{_libexecdir}/gcc/%{cygwin32_target}/%{gcc_major}/lto1
+%{_libexecdir}/gcc/%{cygwin32_target}/%{gcc_major}/lto-wrapper
+%{_libexecdir}/gcc/%{cygwin32_target}/%{gcc_major}/plugin/
+%dir %{_datadir}/gcc-%{gcc_major}
+%dir %{_datadir}/gcc-%{gcc_major}/%{cygwin32_target}
 %{cygwin32_bindir}/cygatomic-1.dll
 %{cygwin32_bindir}/cyggcc_s-1.dll
 %{cygwin32_bindir}/cyggomp-1.dll
@@ -403,45 +398,43 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %{_bindir}/%{cygwin32_target}-cpp
 %{_mandir}/man1/%{cygwin32_target}-cpp.1*
 %dir %{_prefix}/lib/gcc/%{cygwin32_target}
-%dir %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}
-%{_libexecdir}/gcc/%{cygwin32_target}/%{version}/cc1
+%dir %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}
+%{_libexecdir}/gcc/%{cygwin32_target}/%{gcc_major}/cc1
 
 
 %files -n cygwin32-gcc-c++
 %{_bindir}/%{cygwin32_target}-g++
 %{_bindir}/%{cygwin32_target}-c++
 %{_mandir}/man1/%{cygwin32_target}-g++.1*
-%{_libexecdir}/gcc/%{cygwin32_target}/%{version}/cc1plus
-%{_libexecdir}/gcc/%{cygwin32_target}/%{version}/collect2
-%{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/include/c++/
-%{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/libstdc++.a
-%{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/libstdc++.dll.a
-%{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/libstdc++.dll.a-gdb.py
-%{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/libstdc++fs.a
-%{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/libsupc++.a
-%dir %{_datadir}/gcc-%{gcc_version}/%{cygwin32_target}/python
-%{_datadir}/gcc-%{gcc_version}/%{cygwin32_target}/python/libstdcxx/
+%{_libexecdir}/gcc/%{cygwin32_target}/%{gcc_major}/cc1plus
+%{_libexecdir}/gcc/%{cygwin32_target}/%{gcc_major}/collect2
+%{_libexecdir}/gcc/%{cygwin32_target}/%{gcc_major}/g++-mapper-server
+%{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/include/c++/
+%{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libstdc++.a
+%{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libstdc++.dll.a
+%{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libstdc++.dll.a-gdb.py
+%{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libstdc++fs.a
+%{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libsupc++.a
+%dir %{_datadir}/gcc-%{gcc_major}/%{cygwin32_target}/python
+%{_datadir}/gcc-%{gcc_major}/%{cygwin32_target}/python/libstdcxx/
 %{cygwin32_bindir}/cygstdc++-6.dll
 
 
 %files -n cygwin32-gcc-gfortran
 %{_bindir}/%{cygwin32_target}-gfortran
 %{_mandir}/man1/%{cygwin32_target}-gfortran.1*
-%{_libexecdir}/gcc/%{cygwin32_target}/%{version}/f951
-%{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/libcaf_single.a
-%{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/libgfortran.a
-%{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/libgfortran.dll.a
-%{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/libgfortran.spec
-%dir %{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/finclude
-%{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/finclude/ieee_*
-%{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/finclude/omp_lib*
-%{_prefix}/lib/gcc/%{cygwin32_target}/%{version}/finclude/openacc*
+%{_libexecdir}/gcc/%{cygwin32_target}/%{gcc_major}/f951
+%{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libcaf_single.a
+%{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libgfortran.a
+%{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libgfortran.dll.a
+%{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libgfortran.spec
+%{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/finclude/
 %{cygwin32_bindir}/cyggfortran-5.dll
 
 
 %files -n cygwin64-gcc
 %{_bindir}/%{cygwin64_target}-gcc
-%{_bindir}/%{cygwin64_target}-gcc-%{version}
+%{_bindir}/%{cygwin64_target}-gcc-%{gcc_major}
 %{_bindir}/%{cygwin64_target}-gcc-ar
 %{_bindir}/%{cygwin64_target}-gcc-nm
 %{_bindir}/%{cygwin64_target}-gcc-ranlib
@@ -453,33 +446,33 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %{_mandir}/man1/%{cygwin64_target}-gcov-dump.1*
 %{_mandir}/man1/%{cygwin64_target}-gcov-tool.1*
 %dir %{_prefix}/lib/gcc/%{cygwin64_target}
-%dir %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}
-%{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/crtbegin.o
-%{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/crtbeginS.o
-%{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/crtend.o
-%{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/crtfastmath.o
-%{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/libatomic.a
-%{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/libatomic.dll.a
-%{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/libgcc.a
-%{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/libgcc_eh.a
-%{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/libgcc_s.dll.a
-%{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/libgcov.a
-%{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/libgomp.a
-%{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/libgomp.dll.a
-%{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/libgomp.spec
-%{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/libquadmath.a
-%{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/libquadmath.dll.a
-%dir %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/include
-%{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/include/*.h
-%{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/install-tools/
-%{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/plugin/
-%{_libexecdir}/gcc/%{cygwin64_target}/%{version}/install-tools/
-%{_libexecdir}/gcc/%{cygwin64_target}/%{version}/liblto_plugin.so
-%{_libexecdir}/gcc/%{cygwin64_target}/%{version}/lto1
-%{_libexecdir}/gcc/%{cygwin64_target}/%{version}/lto-wrapper
-%{_libexecdir}/gcc/%{cygwin64_target}/%{version}/plugin/
-%dir %{_datadir}/gcc-%{gcc_version}
-%dir %{_datadir}/gcc-%{gcc_version}/%{cygwin64_target}
+%dir %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}
+%{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/crtbegin.o
+%{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/crtbeginS.o
+%{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/crtend.o
+%{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/crtfastmath.o
+%{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libatomic.a
+%{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libatomic.dll.a
+%{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libgcc.a
+%{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libgcc_eh.a
+%{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libgcc_s.dll.a
+%{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libgcov.a
+%{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libgomp.a
+%{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libgomp.dll.a
+%{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libgomp.spec
+%{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libquadmath.a
+%{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libquadmath.dll.a
+%dir %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/include
+%{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/include/*.h
+%{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/install-tools/
+%{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/plugin/
+%{_libexecdir}/gcc/%{cygwin64_target}/%{gcc_major}/install-tools/
+%{_libexecdir}/gcc/%{cygwin64_target}/%{gcc_major}/liblto_plugin.so
+%{_libexecdir}/gcc/%{cygwin64_target}/%{gcc_major}/lto1
+%{_libexecdir}/gcc/%{cygwin64_target}/%{gcc_major}/lto-wrapper
+%{_libexecdir}/gcc/%{cygwin64_target}/%{gcc_major}/plugin/
+%dir %{_datadir}/gcc-%{gcc_major}
+%dir %{_datadir}/gcc-%{gcc_major}/%{cygwin64_target}
 %{cygwin64_bindir}/cygatomic-1.dll
 %{cygwin64_bindir}/cyggcc_s-seh-1.dll
 %{cygwin64_bindir}/cyggomp-1.dll
@@ -491,39 +484,37 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %{_bindir}/%{cygwin64_target}-cpp
 %{_mandir}/man1/%{cygwin64_target}-cpp.1*
 %dir %{_prefix}/lib/gcc/%{cygwin64_target}
-%dir %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}
-%{_libexecdir}/gcc/%{cygwin64_target}/%{version}/cc1
+%dir %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}
+%{_libexecdir}/gcc/%{cygwin64_target}/%{gcc_major}/cc1
 
 
 %files -n cygwin64-gcc-c++
 %{_bindir}/%{cygwin64_target}-g++
 %{_bindir}/%{cygwin64_target}-c++
 %{_mandir}/man1/%{cygwin64_target}-g++.1*
-%{_libexecdir}/gcc/%{cygwin64_target}/%{version}/cc1plus
-%{_libexecdir}/gcc/%{cygwin64_target}/%{version}/collect2
-%{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/include/c++/
-%{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/libstdc++.a
-%{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/libstdc++.dll.a
-%{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/libstdc++.dll.a-gdb.py
-%{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/libstdc++fs.a
-%{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/libsupc++.a
-%dir %{_datadir}/gcc-%{gcc_version}/%{cygwin64_target}/python
-%{_datadir}/gcc-%{gcc_version}/%{cygwin64_target}/python/libstdcxx/
+%{_libexecdir}/gcc/%{cygwin64_target}/%{gcc_major}/cc1plus
+%{_libexecdir}/gcc/%{cygwin64_target}/%{gcc_major}/collect2
+%{_libexecdir}/gcc/%{cygwin64_target}/%{gcc_major}/g++-mapper-server
+%{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/include/c++/
+%{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libstdc++.a
+%{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libstdc++.dll.a
+%{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libstdc++.dll.a-gdb.py
+%{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libstdc++fs.a
+%{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libsupc++.a
+%dir %{_datadir}/gcc-%{gcc_major}/%{cygwin64_target}/python
+%{_datadir}/gcc-%{gcc_major}/%{cygwin64_target}/python/libstdcxx/
 %{cygwin64_bindir}/cygstdc++-6.dll
 
 
 %files -n cygwin64-gcc-gfortran
 %{_bindir}/%{cygwin64_target}-gfortran
 %{_mandir}/man1/%{cygwin64_target}-gfortran.1*
-%{_libexecdir}/gcc/%{cygwin64_target}/%{version}/f951
-%{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/libcaf_single.a
-%{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/libgfortran.a
-%{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/libgfortran.dll.a
-%{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/libgfortran.spec
-%dir %{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/finclude
-%{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/finclude/ieee_*
-%{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/finclude/omp_lib*
-%{_prefix}/lib/gcc/%{cygwin64_target}/%{version}/finclude/openacc*
+%{_libexecdir}/gcc/%{cygwin64_target}/%{gcc_major}/f951
+%{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libcaf_single.a
+%{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libgfortran.a
+%{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libgfortran.dll.a
+%{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libgfortran.spec
+%{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/finclude/
 %{cygwin64_bindir}/cyggfortran-5.dll
 
 
