@@ -33,7 +33,7 @@ BuildRequires:  mpfr-devel
 BuildRequires:  libmpc-devel
 BuildRequires:  libstdc++-static
 %if 0%{?fedora} || 0%{?rhel} >= 8
-BuildRequires:  isl-devel >= 0.14
+BuildRequires:  isl-devel >= 0.15
 %endif
 BuildRequires:  zlib-devel
 BuildRequires:  flex
@@ -226,7 +226,7 @@ CC="%{__cc} ${RPM_OPT_FLAGS}" \
   --with-sysroot=%{cygwin32_sysroot} \
   --enable-shared --enable-shared-libgcc --enable-__cxa_atexit \
   --with-dwarf2 --disable-sjlj-exceptions \
-%if 0%{?fedora}
+%if 0%{?fedora} || 0%{?rhel} >= 8
   --enable-graphite \
 %endif
   --enable-languages="c,c++,fortran,lto" \
@@ -267,7 +267,7 @@ CC="%{__cc} ${RPM_OPT_FLAGS}" \
   --with-sysroot=%{cygwin64_sysroot} \
   --enable-shared --enable-shared-libgcc --enable-__cxa_atexit \
   --with-dwarf2 \
-%if 0%{?fedora}
+%if 0%{?fedora} || 0%{?rhel} >= 8
   --enable-graphite \
 %endif
   --enable-languages="c,c++,fortran,lto" \
@@ -355,10 +355,12 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %{_bindir}/%{cygwin32_target}-gcov
 %{_bindir}/%{cygwin32_target}-gcov-dump
 %{_bindir}/%{cygwin32_target}-gcov-tool
+%{_bindir}/%{cygwin32_target}-lto-dump
 %{_mandir}/man1/%{cygwin32_target}-gcc.1*
 %{_mandir}/man1/%{cygwin32_target}-gcov.1*
 %{_mandir}/man1/%{cygwin32_target}-gcov-dump.1*
 %{_mandir}/man1/%{cygwin32_target}-gcov-tool.1*
+%{_mandir}/man1/%{cygwin32_target}-lto-dump.1*
 %dir %{_prefix}/lib/gcc/%{cygwin32_target}
 %dir %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/crtbegin.o
@@ -441,10 +443,12 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %{_bindir}/%{cygwin64_target}-gcov
 %{_bindir}/%{cygwin64_target}-gcov-dump
 %{_bindir}/%{cygwin64_target}-gcov-tool
+%{_bindir}/%{cygwin64_target}-lto-dump
 %{_mandir}/man1/%{cygwin64_target}-gcc.1*
 %{_mandir}/man1/%{cygwin64_target}-gcov.1*
 %{_mandir}/man1/%{cygwin64_target}-gcov-dump.1*
 %{_mandir}/man1/%{cygwin64_target}-gcov-tool.1*
+%{_mandir}/man1/%{cygwin64_target}-lto-dump.1*
 %dir %{_prefix}/lib/gcc/%{cygwin64_target}
 %dir %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/crtbegin.o
@@ -519,6 +523,9 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 
 
 %changelog
+* Thu Sep 02 2021 Yaakov Selkowitz <yselkowi@redhat.com> - 11.2.0-1
+- new version
+
 * Wed Apr 01 2020 Yaakov Selkowitz <yselkowi@redhat.com> - 9.3.0-1
 - new version
 
