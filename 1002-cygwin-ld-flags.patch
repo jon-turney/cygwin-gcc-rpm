@@ -1,0 +1,12 @@
+diff -up gcc-11.2.0/gcc/config/i386/cygwin.h.dynamicbase gcc-11.2.0/gcc/config/i386/cygwin.h
+--- gcc-11.2.0/gcc/config/i386/cygwin.h.dynamicbase	2021-10-19 12:13:30.662685331 -0400
++++ gcc-11.2.0/gcc/config/i386/cygwin.h	2021-10-19 12:14:31.539839223 -0400
+@@ -138,7 +138,7 @@ along with GCC; see the file COPYING3.
+   %{shared: %{mdll: %eshared and mdll are not compatible}} \
+   %{shared: --shared} %{mdll:--dll} \
+   %{static:-Bstatic} %{!static:-Bdynamic} \
+-  %{shared|mdll: --enable-auto-image-base -e __cygwin_dll_entry@12} \
++  %{shared|mdll: --disable-dynamicbase --enable-auto-image-base -e __cygwin_dll_entry@12} \
+   --dll-search-prefix=cyg \
+   %{!shared: %{!mdll: --large-address-aware --tsaware}}"
+ 

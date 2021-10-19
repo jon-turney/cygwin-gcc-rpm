@@ -5,7 +5,7 @@
 %global gcc_micro 0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %%{release}, append them after %%{gcc_release} on Release: line.
-%global gcc_release 1
+%global gcc_release 2
 
 Name:           cygwin-gcc
 Version:        %{gcc_major}.%{gcc_minor}.%{gcc_micro}
@@ -54,6 +54,7 @@ Patch11:        0011-Cygwin-define-STD_UNIX.patch
 
 # Fedora-specific patches
 Patch1001:      1001-textdomain.patch
+Patch1002:      1002-cygwin-ld-flags.patch
 
 # Upstream patches
 #Patch2001:      pr47030.patch
@@ -523,6 +524,9 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 
 
 %changelog
+* Tue Oct 19 2021 Yaakov Selkowitz <yselkowi@redhat.com> - 11.2.0-2
+- Disable dynamicbase by default in DLLs
+
 * Thu Sep 02 2021 Yaakov Selkowitz <yselkowi@redhat.com> - 11.2.0-1
 - new version
 
