@@ -8,5 +8,17 @@ diff -up gcc-11.2.0/gcc/config/i386/cygwin.h.dynamicbase gcc-11.2.0/gcc/config/i
 -  %{shared|mdll: --enable-auto-image-base -e __cygwin_dll_entry@12} \
 +  %{shared|mdll: --disable-dynamicbase --enable-auto-image-base -e __cygwin_dll_entry@12} \
    --dll-search-prefix=cyg \
+   %{rdynamic: --export-all-symbols} \
    %{!shared: %{!mdll: --large-address-aware --tsaware}}"
- 
+diff -up gcc-11.2.0/gcc/config/i386/cygwin-w64.h.dynamicbase gcc-11.2.0/gcc/config/i386/cygwin-w64.h
+--- gcc-11.2.0/gcc/config/i386/cygwin-w64.h.dynamicbase	2021-10-19 14:22:45.560706087 -0400
++++ gcc-11.2.0/gcc/config/i386/cygwin-w64.h	2021-10-19 14:23:17.766770713 -0400
+@@ -64,7 +64,7 @@ along with GCC; see the file COPYING3.
+   %{shared: %{mdll: %eshared and mdll are not compatible}} \
+   %{shared: --shared} %{mdll:--dll} \
+   %{static:-Bstatic} %{!static:-Bdynamic} \
+-  %{shared|mdll: " SUB_LINK_ENTRY " --enable-auto-image-base} \
++  %{shared|mdll: " SUB_LINK_ENTRY " --disable-dynamicbase --enable-auto-image-base} \
+   %(shared_libgcc_undefs) \
+   --dll-search-prefix=cyg \
+   %{rdynamic: --export-all-symbols} \
