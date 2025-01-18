@@ -11,9 +11,9 @@
  	done
  
  # Rule for regenerating the message template (gcc.pot).
---- a/gcc/intl.c	2010-12-01 11:29:12.000000000 -0600
-+++ b/gcc/intl.c	2013-11-15 01:21:29.446419000 -0600
-@@ -56,8 +56,8 @@ gcc_init_libintl (void)
+--- a/gcc/intl.cc	2010-12-01 11:29:12.000000000 -0600
++++ b/gcc/intl.cc	2013-11-15 01:21:29.446419000 -0600
+@@ -55,8 +55,8 @@ gcc_init_libintl (void)
    setlocale (LC_ALL, "");
  #endif
  

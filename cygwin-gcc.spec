@@ -1,11 +1,20 @@
 %global __os_install_post /usr/lib/rpm/brp-compress %{nil}
 
-%global gcc_major 11
-%global gcc_minor 2
+%global gcc_major 12
+%global gcc_minor 4
 %global gcc_micro 0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %%{release}, append them after %%{gcc_release} on Release: line.
-%global gcc_release 2
+%global gcc_release 1
+
+%global _performance_build 1
+# Hardening slows the compiler way too much.
+%undefine _hardened_build
+%undefine _auto_set_build_flags
+%if 0%{?fedora} > 27 || 0%{?rhel} > 7
+# Until annobin is fixed (#1519165).
+%undefine _annotated_build
+%endif
 
 Name:           cygwin-gcc
 Version:        %{gcc_major}.%{gcc_minor}.%{gcc_micro}
@@ -42,19 +51,23 @@ BuildRequires:  gettext
 Source0:        https://gcc.gnu.org/pub/gcc/releases/gcc-%{version}/gcc-%{version}.tar.xz
 
 # Cygwin patches
+Patch1:		0001-Cygwin-use-SysV-ABI-on-x86_64.patch
 Patch2:         0002-Cygwin-add-dummy-pthread-tsaware-and-large-address-a.patch
 Patch3:         0003-Cygwin-handle-dllimport-properly-in-medium-model-V2.patch
 Patch4:         0004-Cygwin-MinGW-skip-test.patch
-Patch6:         0006-Cygwin-fix-some-implicit-declaration-warnings-and-re.patch
-Patch7:         0007-Cygwin-__cxa-atexit.patch
-Patch8:         0008-Cygwin-libgomp-soname.patch
-Patch9:         0009-Cygwin-g-time.patch
-Patch10:        0010-Cygwin-newlib-ftm.patch
-Patch11:        0011-Cygwin-define-STD_UNIX.patch
+Patch5:		0005-Cygwin-define-RTS_CONTROL_ENABLE-and-DTR_CONTROL_ENA.patch
+Patch6:         0006-Cygwin-__cxa-atexit.patch
+Patch7:         0007-Cygwin-libgomp-soname.patch
+Patch8:         0008-Cygwin-g-time.patch
+Patch9:         0009-Cygwin-newlib-ftm.patch
+Patch10:        0010-Cygwin-define-STD_UNIX.patch
+Patch11:	0011-gcc-honour-ffile-prefix-map-in-ASM_MAP-PR93371.patch
+Patch12:	0012-Always-define-WIN32_LEAN_AND_MEAN-before-windows.h.patch
 
 # Fedora-specific patches
 Patch1001:      1001-textdomain.patch
 Patch1002:      1002-cygwin-ld-flags.patch
+Patch1003:	1003-no-format-security.patch
 
 # Upstream patches
 #Patch2001:      pr47030.patch
