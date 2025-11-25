@@ -1,7 +1,7 @@
-From c37de7beb99e63f439dd3d0309d3bc67d4920412 Mon Sep 17 00:00:00 2001
+From 9384ca46031bf2cbee6820ff2bc27687b90a2407 Mon Sep 17 00:00:00 2001
 From: Jonathan Yong <10walls@gmail.com>
 Date: Tue, 8 Sep 2020 15:21:56 +0200
-Subject: [PATCH 08/12] Cygwin: g++ time
+Subject: [PATCH 10/12] Cygwin: g++ time
 
 ---
  libstdc++-v3/acinclude.m4 | 3 +++
@@ -9,10 +9,10 @@ Subject: [PATCH 08/12] Cygwin: g++ time
  2 files changed, 6 insertions(+)
 
 diff --git a/libstdc++-v3/acinclude.m4 b/libstdc++-v3/acinclude.m4
-index cf6dbc3b165..eb4ccdf21dc 100644
+index 7c843204d70..ae496310548 100644
 --- a/libstdc++-v3/acinclude.m4
 +++ b/libstdc++-v3/acinclude.m4
-@@ -1350,7 +1350,10 @@ AC_DEFUN([GLIBCXX_ENABLE_LIBSTDCXX_TIME], [
+@@ -1369,7 +1369,10 @@ AC_DEFUN([GLIBCXX_ENABLE_LIBSTDCXX_TIME], [
  
      case "${target_os}" in
        cygwin*)
@@ -21,13 +21,13 @@ index cf6dbc3b165..eb4ccdf21dc 100644
          ac_has_nanosleep=yes
 +        ac_has_sched_yield=yes
          ;;
-       darwin*)
-         ac_has_nanosleep=yes
+       mingw*)
+         ac_has_win32_sleep=yes
 diff --git a/libstdc++-v3/configure b/libstdc++-v3/configure
-index ccc23f1b352..d1ac840637f 100755
+index 81329bba8e5..5826cee053a 100755
 --- a/libstdc++-v3/configure
 +++ b/libstdc++-v3/configure
-@@ -20503,7 +20503,10 @@ ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
+@@ -20605,7 +20605,10 @@ ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
  
      case "${target_os}" in
        cygwin*)
@@ -36,8 +36,8 @@ index ccc23f1b352..d1ac840637f 100755
          ac_has_nanosleep=yes
 +        ac_has_sched_yield=yes
          ;;
-       darwin*)
-         ac_has_nanosleep=yes
+       mingw*)
+         ac_has_win32_sleep=yes
 -- 
 2.45.1
 

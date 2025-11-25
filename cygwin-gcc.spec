@@ -1,6 +1,6 @@
 %global __os_install_post /usr/lib/rpm/brp-compress %{nil}
 
-%global gcc_major 12
+%global gcc_major 13
 %global gcc_minor 4
 %global gcc_micro 0
 # Note, gcc_release must be integer, if you want to add suffixes to
@@ -51,18 +51,19 @@ BuildRequires:  gettext
 Source0:        https://gcc.gnu.org/pub/gcc/releases/gcc-%{version}/gcc-%{version}.tar.xz
 
 # Cygwin patches
-Patch1:		0001-Cygwin-use-SysV-ABI-on-x86_64.patch
-Patch2:         0002-Cygwin-add-dummy-pthread-tsaware-and-large-address-a.patch
-Patch3:         0003-Cygwin-handle-dllimport-properly-in-medium-model-V2.patch
-Patch4:         0004-Cygwin-MinGW-skip-test.patch
-Patch5:		0005-Cygwin-define-RTS_CONTROL_ENABLE-and-DTR_CONTROL_ENA.patch
-Patch6:         0006-Cygwin-__cxa-atexit.patch
-Patch7:         0007-Cygwin-libgomp-soname.patch
-Patch8:         0008-Cygwin-g-time.patch
-Patch9:         0009-Cygwin-newlib-ftm.patch
-Patch10:        0010-Cygwin-define-STD_UNIX.patch
-Patch11:	0011-gcc-honour-ffile-prefix-map-in-ASM_MAP-PR93371.patch
-Patch12:	0012-Always-define-WIN32_LEAN_AND_MEAN-before-windows.h.patch
+Patch1:		0001-Always-define-WIN32_LEAN_AND_MEAN-before-windows.h.patch
+Patch2:		0002-add-m-no-align-vector-insn-option-for-i386.patch
+Patch3:		0003-Cygwin-use-SysV-ABI-on-x86_64.patch
+Patch4:		0004-Cygwin-add-dummy-pthread-tsaware-and-large-address-a.patch
+Patch5:		0005-Cygwin-handle-dllimport-properly-in-medium-model-V2.patch
+Patch6:		0006-Cygwin-MinGW-skip-test.patch
+Patch7:		0007-Cygwin-define-RTS_CONTROL_ENABLE-and-DTR_CONTROL_ENA.patch
+Patch8:		0008-Cygwin-__cxa-atexit.patch
+Patch9:		0009-Cygwin-libgomp-soname.patch
+Patch10:	0010-Cygwin-g-time.patch
+Patch11:	0011-Cygwin-newlib-ftm.patch
+Patch12:	0012-Cygwin-define-STD_UNIX.patch
+
 
 # Fedora-specific patches
 Patch1001:      1001-textdomain.patch
@@ -310,30 +311,15 @@ rm -rf $RPM_BUILD_ROOT%{_infodir}
 rm -f $RPM_BUILD_ROOT%{_libdir}/libiberty*
 rm -f $RPM_BUILD_ROOT%{_mandir}/man7/*
 
-# This file is provided by cygwin*-libbfd
-rm -f $RPM_BUILD_ROOT%{_prefix}/%{cygwin32_target}/lib/libiberty.a
-rm -f $RPM_BUILD_ROOT%{_prefix}/%{cygwin64_target}/lib/libiberty.a
-
 mkdir -p $RPM_BUILD_ROOT/lib
 ln -sf ..%{_prefix}/bin/%{cygwin32_target}-cpp \
   $RPM_BUILD_ROOT/lib/%{cygwin32_target}-cpp
 ln -sf ..%{_prefix}/bin/%{cygwin64_target}-cpp \
   $RPM_BUILD_ROOT/lib/%{cygwin64_target}-cpp
 
-# installation bug on multilib platforms
-mv $RPM_BUILD_ROOT%{_prefix}/lib/gcc/%{cygwin64_target}/lib/libgcc_s.dll.a \
-  $RPM_BUILD_ROOT%{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/
-
 # clean-up include-fixed
-mv $RPM_BUILD_ROOT%{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/include-fixed/*limits.h \
-  $RPM_BUILD_ROOT%{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/include/
-mv $RPM_BUILD_ROOT%{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/include-fixed/*limits.h \
-  $RPM_BUILD_ROOT%{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/include/
 rm -fr $RPM_BUILD_ROOT%{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/include-fixed/
 rm -fr $RPM_BUILD_ROOT%{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/include-fixed/
-
-# This is a runtime plugin of libgomp, not a link library
-rm -f $RPM_BUILD_ROOT%{_prefix}/lib/gcc/*/%{gcc_major}/libgomp-plugin-host_nonshm.dll.a
 
 # libtool installs DLL files of runtime libraries into $(libdir)/../bin,
 # but we need them in cygwin*_bindir.
@@ -429,6 +415,7 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libstdc++.a
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libstdc++.dll.a
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libstdc++.dll.a-gdb.py
+%{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libstdc++exp.a
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libstdc++fs.a
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libsupc++.a
 %dir %{_datadir}/gcc-%{gcc_major}/%{cygwin32_target}/python
@@ -517,6 +504,7 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libstdc++.a
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libstdc++.dll.a
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libstdc++.dll.a-gdb.py
+%{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libstdc++exp.a
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libstdc++fs.a
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libsupc++.a
 %dir %{_datadir}/gcc-%{gcc_major}/%{cygwin64_target}/python

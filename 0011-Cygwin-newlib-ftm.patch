@@ -1,14 +1,14 @@
-From f93af42f63cdb7920b09cb76fd592bae1020f75a Mon Sep 17 00:00:00 2001
+From 679f014cd64500d7326824ea8baab7a694a18b6d Mon Sep 17 00:00:00 2001
 From: Jonathan Yong <10walls@gmail.com>
 Date: Tue, 8 Sep 2020 15:24:34 +0200
-Subject: [PATCH 09/12] Cygwin: newlib ftm
+Subject: [PATCH 11/12] Cygwin: newlib ftm
 
 ---
  gcc/glimits.h | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/gcc/glimits.h b/gcc/glimits.h
-index 8d74c8b88d6..b552a61cf65 100644
+index 5aadbaa102e..bf884fb58df 100644
 --- a/gcc/glimits.h
 +++ b/gcc/glimits.h
 @@ -111,7 +111,7 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see

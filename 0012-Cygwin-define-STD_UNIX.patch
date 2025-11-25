@@ -1,17 +1,17 @@
-From a2b39ccb86b0bb484b089e222f3531bc1917ffc6 Mon Sep 17 00:00:00 2001
+From 3a8b24f26baa2bcde5723272b034be00e2c1a0bf Mon Sep 17 00:00:00 2001
 From: Jonathan Yong <10walls@gmail.com>
 Date: Tue, 8 Sep 2020 15:26:02 +0200
-Subject: [PATCH 10/12] Cygwin: define STD_UNIX
+Subject: [PATCH 12/12] Cygwin: define STD_UNIX
 
 ---
  gcc/config/i386/cygwin.h | 4 +---
  1 file changed, 1 insertion(+), 3 deletions(-)
 
 diff --git a/gcc/config/i386/cygwin.h b/gcc/config/i386/cygwin.h
-index ef0c1362aa8..73ef044f402 100644
+index 29feb322a2c..3be412dddb4 100644
 --- a/gcc/config/i386/cygwin.h
 +++ b/gcc/config/i386/cygwin.h
-@@ -24,8 +24,7 @@ along with GCC; see the file COPYING3.  If not see
+@@ -24,14 +24,12 @@ along with GCC; see the file COPYING3.  If not see
        builtin_define ("__CYGWIN__");				\
        if (!TARGET_64BIT)					\
  	builtin_define ("__CYGWIN32__");			\
@@ -20,8 +20,6 @@ index ef0c1362aa8..73ef044f402 100644
 +      builtin_define_std ("unix");				\
      }								\
    while (0)
- 
-@@ -40,7 +39,6 @@ along with GCC; see the file COPYING3.  If not see
  
  #undef CPP_SPEC
  #define CPP_SPEC "%(cpp_cpu) %{posix:-D_POSIX_SOURCE} \
