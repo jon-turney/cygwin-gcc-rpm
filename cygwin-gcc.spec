@@ -218,34 +218,29 @@ export gcc_cv_libc_provides_ssp=yes
 # realpath(..., NULL) via _XOPEN_VERSION
 export glibcxx_cv_realpath=yes
 
-mkdir -p build_32bit
-pushd build_32bit
-
-CC="%{__cc} ${RPM_OPT_FLAGS}" \
-../configure \
+CONFIGURE_OPTS="\
   --prefix=%{_prefix} \
   --mandir=%{_mandir} \
   --infodir=%{_infodir} \
   --build=%_build --host=%_host \
-  --target=%{cygwin32_target} \
-  --with-arch=i686 --with-tune=generic \
   --with-gnu-as --with-gnu-ld --verbose \
   --enable-linker-build-id \
   --disable-multilib \
   --with-system-zlib \
-  --enable-shared --enable-shared-libgcc --enable-static \
+  --enable-shared \
+  --enable-shared-libgcc \
+  --enable-static \
   --without-included-gettext \
   --disable-win32-registry \
   --enable-threads=posix \
   --enable-version-specific-runtime-libs \
   --with-gcc-major-version-only \
-  --with-sysroot=%{cygwin32_sysroot} \
-  --enable-shared --enable-shared-libgcc --enable-__cxa_atexit \
-  --with-dwarf2 --disable-sjlj-exceptions \
+  --enable-__cxa_atexit \
+  --with-dwarf2 \
 %if 0%{?fedora} || 0%{?rhel} >= 8
   --enable-graphite \
 %endif
-  --enable-languages="c,c++,fortran,lto" \
+  --enable-languages=c,c++,fortran,lto \
   --disable-libcc1 \
   --enable-lto \
   --disable-symvers \
@@ -255,8 +250,21 @@ CC="%{__cc} ${RPM_OPT_FLAGS}" \
   --enable-libquadmath --enable-libquadmath-support \
   --enable-libstdcxx-filesystem-ts \
   --with-default-libstdcxx-abi=gcc4-compatible \
-  --with-python-dir=/share/gcc-%{gcc_major}/%{cygwin32_target}/python \
   --with-bugurl=https://cygwin.com
+"
+
+mkdir -p build_32bit
+pushd build_32bit
+
+CC="%{__cc} ${RPM_OPT_FLAGS}" \
+../configure \
+  $CONFIGURE_OPTS \
+  --target=%{cygwin32_target} \
+  --with-arch=i686 --with-tune=generic \
+  --with-sysroot=%{cygwin32_sysroot} \
+  --disable-sjlj-exceptions \
+  --with-python-dir=/share/gcc-%{gcc_major}/%{cygwin32_target}/python
+
 popd
 
 mkdir -p build_64bit
@@ -264,40 +272,11 @@ pushd build_64bit
 
 CC="%{__cc} ${RPM_OPT_FLAGS}" \
 ../configure \
-  --prefix=%{_prefix} \
-  --mandir=%{_mandir} \
-  --infodir=%{_infodir} \
-  --build=%_build --host=%_host \
+  $CONFIGURE_OPTS \
   --target=%{cygwin64_target} \
   --with-tune=generic \
-  --with-gnu-as --with-gnu-ld --verbose \
-  --enable-linker-build-id \
-  --disable-multilib \
-  --with-system-zlib \
-  --enable-shared --enable-shared-libgcc --enable-static \
-  --without-included-gettext \
-  --disable-win32-registry \
-  --enable-threads=posix \
-  --enable-version-specific-runtime-libs \
-  --with-gcc-major-version-only \
   --with-sysroot=%{cygwin64_sysroot} \
-  --enable-shared --enable-shared-libgcc --enable-__cxa_atexit \
-  --with-dwarf2 \
-%if 0%{?fedora} || 0%{?rhel} >= 8
-  --enable-graphite \
-%endif
-  --enable-languages="c,c++,fortran,lto" \
-  --disable-libcc1 \
-  --enable-lto \
-  --disable-symvers \
-  --enable-libatomic \
-  --enable-libgomp \
-  --disable-libssp \
-  --enable-libquadmath --enable-libquadmath-support \
-  --enable-libstdcxx-filesystem-ts \
-  --with-default-libstdcxx-abi=gcc4-compatible \
-  --with-python-dir=/share/gcc-%{gcc_major}/%{cygwin64_target}/python \
-  --with-bugurl=https://cygwin.com
+  --with-python-dir=/share/gcc-%{gcc_major}/%{cygwin64_target}/python
 
 popd
 
