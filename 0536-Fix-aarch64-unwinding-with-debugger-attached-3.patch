@@ -1,0 +1,61 @@
+From 3fc602fdc1c6697c90ed7fec97b6c29ba5b168dc Mon Sep 17 00:00:00 2001
+From: Evgeny Karpov <evgeny@kmaps.co>
+Date: Thu, 4 Dec 2025 18:41:17 +0100
+Subject: [PATCH 36/38] Fix aarch64 unwinding with debugger attached (#3)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+See https://github.com/LuaJIT/LuaJIT/issues/593#issuecomment-1717728494
+for the original explanation of the problem.
+
+In short; when a debugger is attached, there's a
+function KiUserExceptionDispatcher in the stack that is being
+unwound. The function KiUserExceptionDispatcher contains
+a CONTEXT, with a copy of the context from where the exception
+was raised. When unwinding through this function, this
+whole CONTEXT gets restored.
+
+This CONTEXT is what we receive a pointer to in the callbacks,
+as the ms_ctx pointer.
+
+When we unwind manually using RtlUnwindEx, the unwinding
+overwrites the CONTEXT that is passed to it. Thus, to avoid
+clobbering the CONTEXT that needs to be restored by
+KiUserExceptionDispatcher, we could either declare a new
+temporary CONTEXT on the stack before calling RtlUnwindEx,
+or just use disp->ContextRecord as we already have
+available.
+
+Co-authored-by: Peter Cawley <corsix@corsix.org>
+Co-authored-by: Hannes Domani <ssbssa@yahoo.de>
+Co-authored-by: Martin Storsjö <martin@martin.st>
+---
+ libgcc/unwind-seh.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/libgcc/unwind-seh.c b/libgcc/unwind-seh.c
+index 480a35e96ffa..b71ebf433411 100644
+--- a/libgcc/unwind-seh.c
++++ b/libgcc/unwind-seh.c
+@@ -227,7 +227,7 @@ _GCC_specific_handler (PEXCEPTION_RECORD ms_exc, void *this_frame,
+       if (ms_exc->ExceptionInformation[1] == (_Unwind_Ptr) this_frame)
+ 	{
+ 	  RtlUnwindEx (this_frame, (PVOID) ms_exc->ExceptionInformation[2],
+-		       ms_exc, gcc_exc, ms_orig_context,
++		       ms_exc, gcc_exc, ms_disp->ContextRecord,
+ 		       ms_disp->HistoryTable);
+ 	  abort ();
+ 	}
+@@ -323,7 +323,7 @@ _GCC_specific_handler (PEXCEPTION_RECORD ms_exc, void *this_frame,
+ 
+ 	  /* Begin phase 2.  Perform the unwinding.  */
+ 	  RtlUnwindEx (this_frame, (PVOID)gcc_context.ra, ms_exc,
+-		       (PVOID)gcc_context.reg[0], ms_orig_context,
++		       (PVOID)gcc_context.reg[0], ms_disp->ContextRecord,
+ 		       ms_disp->HistoryTable);
+ 	}
+ 
+-- 
+2.51.0
+

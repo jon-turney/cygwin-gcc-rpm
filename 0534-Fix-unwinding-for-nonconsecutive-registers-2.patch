@@ -1,0 +1,124 @@
+From 9787a05b1ec07d59646eb79fe9306efc3515cf74 Mon Sep 17 00:00:00 2001
+From: Evgeny Karpov <evgeny@kmaps.co>
+Date: Mon, 1 Dec 2025 09:01:29 +0100
+Subject: [PATCH 34/38] Fix unwinding for nonconsecutive registers (#2)
+
+When the registers are stored as a pair of nonconsecutive registers, they cannot
+be unwound with a single unwind code. One option is to emit two unwind codes.
+
+stp x19, x25, [sp, 16]
+.seh_save_reg x19, 16
+.seh_save_reg x25, 24
+
+stp x19, x20, [sp, 16] can be unwound with a single unwind code.
+.seh_save_regp x19, 16
+
+The patch also fixes emitting the incorrect register prefix v for d registers.
+
+Signed-off-by: Evgeny Karpov <evgeny@kmaps.co>
+---
+ gcc/config/mingw/winnt.cc | 64 ++++++++++++++++++++++-----------------
+ 1 file changed, 36 insertions(+), 28 deletions(-)
+
+diff --git a/gcc/config/mingw/winnt.cc b/gcc/config/mingw/winnt.cc
+index ea991843000a..e4a53c902b62 100644
+--- a/gcc/config/mingw/winnt.cc
++++ b/gcc/config/mingw/winnt.cc
+@@ -1095,7 +1095,10 @@ seh_emit_save (FILE *f, struct seh_frame_state *seh,
+   fputs ((FP_REGNUM_P (regno) ? " \t.seh_save_freg\t"
+ 	 : GP_REGNUM_P (regno) ?  " \t.seh_save_reg\t"
+ 	 : (gcc_unreachable (), "")), f);
+-  aarch64_print_reg (reg, 0, f);
++  if (REGNO (reg) >= V0_REGNUM)
++    fprintf (f, "d%ld", REGNO (reg) - V0_REGNUM);
++  else
++    fprintf (f, "x%ld", REGNO (reg));
+   fprintf (f, ", " HOST_WIDE_INT_PRINT_DEC " \n", abs (cfa_offset));
+   return;
+ #endif
+@@ -1446,7 +1449,7 @@ seh_pattern_emit (FILE *f, struct seh_frame_state *seh, rtx pat)
+    if (GET_CODE (pat) == PARALLEL)
+     {
+       int i, n = XVECLEN (pat, 0);
+-      HOST_WIDE_INT regno, min_regno = V15_REGNUM;
++      HOST_WIDE_INT regno[2], min_regno = V15_REGNUM;
+       int reg_count = 0;
+       HOST_WIDE_INT increment = 0;
+ 
+@@ -1469,25 +1472,16 @@ seh_pattern_emit (FILE *f, struct seh_frame_state *seh, rtx pat)
+ 
+ 	  if (!seh->after_prologue && GET_CODE (src) == REG)
+ 	  {
+-	    regno = REGNO (src);
+-
+-	    if (CALLEE_SAVED_REG_NUMBER (regno))
+-	      {
+-		reg_count += 1;
+-		min_regno = MIN (regno, min_regno);
+-	      }
+-	  }
++	    regno[reg_count] = REGNO (src);
+ 
+-	  if (seh->after_prologue && GET_CODE (dest) == REG)
++	    if (CALLEE_SAVED_REG_NUMBER (regno[reg_count]))
+ 	    {
+-	      regno = REGNO (dest);
+-
+-	      if (CALLEE_SAVED_REG_NUMBER (regno))
+-	      {
+-		reg_count += 1;
+-		min_regno = MIN (regno, min_regno);
+-	      }
++	      min_regno = MIN (regno[reg_count], min_regno);
++	      ++reg_count;
++	      if (reg_count >= 2)
++		break;
+ 	    }
++	  }
+ 	}
+ 
+       if (reg_count == 2)
+@@ -1495,16 +1489,30 @@ seh_pattern_emit (FILE *f, struct seh_frame_state *seh, rtx pat)
+ 	HOST_WIDE_INT offset = increment != 0 ? abs (increment) :
+ 		       seh_parallel_offset (pat, min_regno);
+ 
+-	if (FP_REGNUM_P(regno))
+-	  fprintf (f, "\t.seh_save_%s	d%ld, %ld\n",
+-	    increment != 0 ? "fregp_x" : "fregp",
+-	    min_regno - V0_REGNUM,
+-	    offset);
+-	else
+-	  fprintf (f, "\t.seh_save_%s	x%ld, %ld\n",
+-	    increment != 0 ? "regp_x" : "regp",
+-	    min_regno,
+-	    offset);
++	bool emit_single_register = (regno[1] - regno[0]) != 1;
++
++	const char *unwind_code_prefix = ".seh_save_";
++	const char *unwind_code_infix = emit_single_register ? "reg": "regp";
++	const char *unwind_code_suffix = increment ? "_x": "";
++	char reg_prefix = 'x';
++	unsigned regno_offset = 0;
++	HOST_WIDE_INT offset_increment = increment ? -8: 8;
++
++	if (FP_REGNUM_P(regno[0]))
++	{
++	  unwind_code_prefix = ".seh_save_f";
++	  reg_prefix = 'd';
++	  regno_offset = V0_REGNUM;
++	}
++
++	for (unsigned i = 0, n = emit_single_register ? 2: 1; i < n; ++i)
++	  fprintf (f, "\t%s%s%s\t%c%ld, %ld\n",
++	    unwind_code_prefix,
++	    unwind_code_infix,
++	    unwind_code_suffix,
++	    reg_prefix,
++	    regno[i] - regno_offset,
++	    offset + i * offset_increment);
+       }
+     }
+   else
+-- 
+2.51.0
+

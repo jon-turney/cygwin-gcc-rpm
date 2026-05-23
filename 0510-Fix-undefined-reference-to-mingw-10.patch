@@ -1,0 +1,31 @@
+From 5d123fef7f7e0946036866e102103545197828e1 Mon Sep 17 00:00:00 2001
+From: Evgeny Karpov <eukarpov@gmail.com>
+Date: Tue, 28 Nov 2023 19:22:57 +0100
+Subject: [PATCH 10/38] Fix undefined reference to mingw (#10)
+
+---
+ libgfortran/libgfortran.h | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/libgfortran/libgfortran.h b/libgfortran/libgfortran.h
+index 10c5313e1bc0..95e3a7ca78ac 100644
+--- a/libgfortran/libgfortran.h
++++ b/libgfortran/libgfortran.h
+@@ -67,8 +67,14 @@ extern float __strtof (const char *, char **);
+ #define gfc_strtof __strtof
+ extern double __strtod (const char *, char **);
+ #define gfc_strtod __strtod
++
++#if defined(__aarch64__)
++#define gfc_strtold strtold
++#else
+ extern long double __strtold (const char *, char **);
+ #define gfc_strtold __strtold
++#endif
++
+ #else
+ #define gfc_strtof strtof
+ #define gfc_strtod strtod
+-- 
+2.51.0
+

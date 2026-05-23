@@ -1,0 +1,257 @@
+From bb52b84bed18b1ace45e38d9f071a14edf7271fe Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Radek=20Barto=C5=88?= <radek.barton@microsoft.com>
+Date: Mon, 23 Jun 2025 11:10:56 -0700
+Subject: [PATCH 32/38] Fix some configuration checks ignored for aarch64-* by
+ previously defined aarch64-* case (#42)
+
+Specifically this fixes: `aarch64-pc-cygwin-c++: error: command-line option '-mno-use-libstdc-wrappers' is not supported by this configuration`
+---
+ gcc/configure    | 145 ++++++++++++++++++++++++++++++++++++++++++++++-
+ gcc/configure.ac |  61 +++++++++++++++++++-
+ 2 files changed, 204 insertions(+), 2 deletions(-)
+
+diff --git a/gcc/configure b/gcc/configure
+index cfc399347dda..910f93df3dc4 100755
+--- a/gcc/configure
++++ b/gcc/configure
+@@ -28911,6 +28911,149 @@ if test "${enable_fix_cortex_a53_843419+set}" = set; then :
+ 
+ fi
+ 
++    case $target_os in
++      cygwin*)
++	# Full C++ conformance when using a shared libstdc++-v3 requires some
++	# support from the Cygwin DLL, which in more recent versions exports
++	# wrappers to aid in interposing and redirecting operators new, delete,
++	# etc., as per n2800 #17.6.4.6 [replacement.functions].  Check if we
++	# are configuring for a version of Cygwin that exports the wrappers.
++	if test x$host = x$target && test x$host_cpu = xaarch64; then
++	  ac_fn_cxx_check_func "$LINENO" "__wrap__Znaj" "ac_cv_func___wrap__Znaj"
++if test "x$ac_cv_func___wrap__Znaj" = xyes; then :
++  gcc_ac_cygwin_dll_wrappers=yes
++else
++  gcc_ac_cygwin_dll_wrappers=no
++fi
++
++	else
++	  # Can't check presence of libc functions during cross-compile, so
++	  # we just have to assume we're building for an up-to-date target.
++	  gcc_ac_cygwin_dll_wrappers=yes
++	fi
++
++cat >>confdefs.h <<_ACEOF
++#define USE_CYGWIN_LIBSTDCXX_WRAPPERS `if test $gcc_ac_cygwin_dll_wrappers = yes; then echo 1; else echo 0; fi`
++_ACEOF
++
++    esac
++    case $target_os in
++      cygwin* | pe | mingw32*)
++	# Recent binutils allows the three-operand form of ".comm" on PE.  This
++	# definition is used unconditionally to initialise the default state of
++	# the target option variable that governs usage of the feature.
++	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking assembler for .comm with alignment" >&5
++$as_echo_n "checking assembler for .comm with alignment... " >&6; }
++if ${gcc_cv_as_comm_has_align+:} false; then :
++  $as_echo_n "(cached) " >&6
++else
++  gcc_cv_as_comm_has_align=no
++  if test x$gcc_cv_as != x; then
++    $as_echo '.comm foo,1,32' > conftest.s
++    if { ac_try='$gcc_cv_as $gcc_cv_as_flags  -o conftest.o conftest.s >&5'
++  { { eval echo "\"\$as_me\":${as_lineno-$LINENO}: \"$ac_try\""; } >&5
++  (eval $ac_try) 2>&5
++  ac_status=$?
++  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
++  test $ac_status = 0; }; }
++    then
++	gcc_cv_as_comm_has_align=yes
++    else
++      echo "configure: failed program was" >&5
++      cat conftest.s >&5
++    fi
++    rm -f conftest.o conftest.s
++  fi
++fi
++{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gcc_cv_as_comm_has_align" >&5
++$as_echo "$gcc_cv_as_comm_has_align" >&6; }
++
++
++
++cat >>confdefs.h <<_ACEOF
++#define HAVE_GAS_ALIGNED_COMM `if test $gcc_cv_as_comm_has_align = yes; then echo 1; else echo 0; fi`
++_ACEOF
++
++	# Used for DWARF 2 in PE
++	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking assembler for .secrel32 relocs" >&5
++$as_echo_n "checking assembler for .secrel32 relocs... " >&6; }
++if ${gcc_cv_as_aarch64_pe_secrel32+:} false; then :
++  $as_echo_n "(cached) " >&6
++else
++  gcc_cv_as_aarch64_pe_secrel32=no
++  if test x$gcc_cv_as != x; then
++    $as_echo '.text
++foo:	nop
++.data
++	.secrel32 foo' > conftest.s
++    if { ac_try='$gcc_cv_as $gcc_cv_as_flags  -o conftest.o conftest.s >&5'
++  { { eval echo "\"\$as_me\":${as_lineno-$LINENO}: \"$ac_try\""; } >&5
++  (eval $ac_try) 2>&5
++  ac_status=$?
++  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
++  test $ac_status = 0; }; }
++    then
++	if test x$gcc_cv_ld != x \
++	   && $gcc_cv_ld -o conftest conftest.o > /dev/null 2>&1; then
++	     gcc_cv_as_aarch64_pe_secrel32=yes
++	   fi
++	   rm -f conftest
++    else
++      echo "configure: failed program was" >&5
++      cat conftest.s >&5
++    fi
++    rm -f conftest.o conftest.s
++  fi
++fi
++{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gcc_cv_as_aarch64_pe_secrel32" >&5
++$as_echo "$gcc_cv_as_aarch64_pe_secrel32" >&6; }
++if test $gcc_cv_as_aarch64_pe_secrel32 = yes; then
++
++$as_echo "#define HAVE_GAS_PE_SECREL32_RELOC 1" >>confdefs.h
++
++fi
++
++	# Test if the assembler supports the extended form of the .section
++	# directive that specifies section alignment.  LTO support uses this,
++	# but normally only after installation, so we warn but don't fail the
++	# configure if LTO is enabled but the assembler does not support it.
++	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking assembler for .section with alignment" >&5
++$as_echo_n "checking assembler for .section with alignment... " >&6; }
++if ${gcc_cv_as_section_has_align+:} false; then :
++  $as_echo_n "(cached) " >&6
++else
++  gcc_cv_as_section_has_align=no
++  if test x$gcc_cv_as != x; then
++    $as_echo '.section lto_test,"dr0"' > conftest.s
++    if { ac_try='$gcc_cv_as $gcc_cv_as_flags -fatal-warnings -o conftest.o conftest.s >&5'
++  { { eval echo "\"\$as_me\":${as_lineno-$LINENO}: \"$ac_try\""; } >&5
++  (eval $ac_try) 2>&5
++  ac_status=$?
++  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
++  test $ac_status = 0; }; }
++    then
++	gcc_cv_as_section_has_align=yes
++    else
++      echo "configure: failed program was" >&5
++      cat conftest.s >&5
++    fi
++    rm -f conftest.o conftest.s
++  fi
++fi
++{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gcc_cv_as_section_has_align" >&5
++$as_echo "$gcc_cv_as_section_has_align" >&6; }
++
++
++	if test x$gcc_cv_as_section_has_align != xyes; then
++	  case ",$enable_languages," in
++	    *,lto,*)
++	      { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: LTO for $target requires binutils >= 2.20.1, but version found appears insufficient; LTO will not work until binutils is upgraded." >&5
++$as_echo "$as_me: WARNING: LTO for $target requires binutils >= 2.20.1, but version found appears insufficient; LTO will not work until binutils is upgraded." >&2;}
++	      ;;
++	  esac
++	fi
++	;;
++    esac
+     ;;
+ 
+   # All TARGET_ABI_OSF targets.
+@@ -29366,7 +29509,7 @@ fi
+ 
+     ;;
+ 
+-  i[34567]86-*-* | x86_64-*-* | aarch64-*-*)
++  i[34567]86-*-* | x86_64-*-*)
+     case $target_os in
+       cygwin*)
+ 	# Full C++ conformance when using a shared libstdc++-v3 requires some
+diff --git a/gcc/configure.ac b/gcc/configure.ac
+index a5a184dfe5ba..49559fc09cb9 100644
+--- a/gcc/configure.ac
++++ b/gcc/configure.ac
+@@ -4639,6 +4639,65 @@ AS_HELP_STRING([--disable-fix-cortex-a53-843419],
+         esac
+       ],
+     [])
++    case $target_os in
++      cygwin*)
++	# Full C++ conformance when using a shared libstdc++-v3 requires some
++	# support from the Cygwin DLL, which in more recent versions exports
++	# wrappers to aid in interposing and redirecting operators new, delete,
++	# etc., as per n2800 #17.6.4.6 [replacement.functions].  Check if we
++	# are configuring for a version of Cygwin that exports the wrappers.
++	if test x$host = x$target && test x$host_cpu = xaarch64; then
++	  AC_CHECK_FUNC([__wrap__Znaj],[gcc_ac_cygwin_dll_wrappers=yes],[gcc_ac_cygwin_dll_wrappers=no])
++	else
++	  # Can't check presence of libc functions during cross-compile, so
++	  # we just have to assume we're building for an up-to-date target.
++	  gcc_ac_cygwin_dll_wrappers=yes
++	fi
++	AC_DEFINE_UNQUOTED(USE_CYGWIN_LIBSTDCXX_WRAPPERS,
++	  [`if test $gcc_ac_cygwin_dll_wrappers = yes; then echo 1; else echo 0; fi`],
++	  [Define if you want to generate code by default that assumes that the
++	   Cygwin DLL exports wrappers to support libstdc++ function replacement.])
++    esac
++    case $target_os in
++      cygwin* | pe | mingw32*)
++	# Recent binutils allows the three-operand form of ".comm" on PE.  This
++	# definition is used unconditionally to initialise the default state of
++	# the target option variable that governs usage of the feature.
++	gcc_GAS_CHECK_FEATURE([.comm with alignment], gcc_cv_as_comm_has_align,,
++	  [.comm foo,1,32])
++	AC_DEFINE_UNQUOTED(HAVE_GAS_ALIGNED_COMM,
++	  [`if test $gcc_cv_as_comm_has_align = yes; then echo 1; else echo 0; fi`],
++	  [Define if your assembler supports specifying the alignment
++	   of objects allocated using the GAS .comm command.])
++	# Used for DWARF 2 in PE
++	gcc_GAS_CHECK_FEATURE([.secrel32 relocs],
++	  gcc_cv_as_aarch64_pe_secrel32,,
++[.text
++foo:	nop
++.data
++	.secrel32 foo],
++	  [if test x$gcc_cv_ld != x \
++	   && $gcc_cv_ld -o conftest conftest.o > /dev/null 2>&1; then
++	     gcc_cv_as_aarch64_pe_secrel32=yes
++	   fi
++	   rm -f conftest],
++	  [AC_DEFINE(HAVE_GAS_PE_SECREL32_RELOC, 1,
++	    [Define if your assembler and linker support 32-bit section relative relocs via '.secrel32 label'.])])
++	# Test if the assembler supports the extended form of the .section
++	# directive that specifies section alignment.  LTO support uses this,
++	# but normally only after installation, so we warn but don't fail the
++	# configure if LTO is enabled but the assembler does not support it.
++	gcc_GAS_CHECK_FEATURE([.section with alignment], gcc_cv_as_section_has_align,
++	  -fatal-warnings,[.section lto_test,"dr0"])
++	if test x$gcc_cv_as_section_has_align != xyes; then
++	  case ",$enable_languages," in
++	    *,lto,*)
++	      AC_MSG_WARN([LTO for $target requires binutils >= 2.20.1, but version found appears insufficient; LTO will not work until binutils is upgraded.])
++	      ;;
++	  esac
++	fi
++	;;
++    esac
+     ;;
+ 
+   # All TARGET_ABI_OSF targets.
+@@ -4807,7 +4866,7 @@ EOF
+     ;;
+ 
+ changequote(,)dnl
+-  i[34567]86-*-* | x86_64-*-* | aarch64-*-*)
++  i[34567]86-*-* | x86_64-*-*)
+ changequote([,])dnl
+     case $target_os in
+       cygwin*)
+-- 
+2.51.0
+

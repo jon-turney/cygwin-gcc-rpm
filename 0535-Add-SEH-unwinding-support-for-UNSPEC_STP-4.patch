@@ -1,0 +1,201 @@
+From c9e85ee6c3ad8dafe3c227222f1e9d64340b48c6 Mon Sep 17 00:00:00 2001
+From: Evgeny Karpov <evgeny@kmaps.co>
+Date: Thu, 4 Dec 2025 15:30:43 +0100
+Subject: [PATCH 35/38] Add SEH unwinding support for UNSPEC_STP (#4)
+
+Signed-off-by: Evgeny Karpov <evgeny@kmaps.co>
+---
+ gcc/config/mingw/winnt.cc | 134 +++++++++++++++++++++++++++-----------
+ 1 file changed, 97 insertions(+), 37 deletions(-)
+
+diff --git a/gcc/config/mingw/winnt.cc b/gcc/config/mingw/winnt.cc
+index e4a53c902b62..bbf5ad8e33a3 100644
+--- a/gcc/config/mingw/winnt.cc
++++ b/gcc/config/mingw/winnt.cc
+@@ -1119,6 +1119,85 @@ seh_emit_save (FILE *f, struct seh_frame_state *seh,
+   fprintf (f, ", " HOST_WIDE_INT_PRINT_DEC "\n", offset);
+ }
+ 
++#if defined (TARGET_AARCH64_MS_ABI)
++#define CALLEE_SAVED_REG_NUMBER(r)		\
++  (((r) >= R19_REGNUM && (r) <= R30_REGNUM)	\
++   || ((r) >= V8_REGNUM && (r) <= V15_REGNUM))
++
++static void
++seh_emit_save_pair (FILE *f, HOST_WIDE_INT regno[2], HOST_WIDE_INT offset)
++{
++  const char *unwind_code_prefix = ".seh_save_";
++  const char *unwind_code_infix = "";
++  bool negative_offset = offset < 0;
++  const char *unwind_code_suffix = negative_offset ? "_x": "";
++  offset = abs(offset);
++
++  if (regno[0] == FP_REGNUM && regno[1] == LR_REGNUM)
++  {
++    unwind_code_infix = "fplr";
++    fprintf (f, "\t%s%s%s\t%ld\n",
++      unwind_code_prefix,
++      unwind_code_infix,
++      unwind_code_suffix,
++      offset);
++    return;
++  }
++
++  if (regno[0] == R19_REGNUM && regno[1] == R20_REGNUM && negative_offset)
++  {
++    unwind_code_infix = "r19r20";
++    fprintf (f, "\t%s%s%s\t%ld\n",
++      unwind_code_prefix,
++      unwind_code_infix,
++      unwind_code_suffix,
++      offset);
++    return;
++  }
++
++  bool callee_save_reg1 = CALLEE_SAVED_REG_NUMBER (regno[0]);
++  bool callee_save_reg2 = CALLEE_SAVED_REG_NUMBER (regno[1]);
++
++  if (!callee_save_reg1 && !callee_save_reg2)
++    return;
++
++  bool emit_single_register = false;
++  unsigned reg_count = 1;
++  if (callee_save_reg1 && callee_save_reg2)
++  {
++    emit_single_register = (regno[1] - regno[0]) != 1;
++    reg_count += emit_single_register ? 1: 0;
++  }
++  else
++  {
++    emit_single_register = true;
++    if (!callee_save_reg1)
++      regno[0] = regno[1];
++  }
++
++  unwind_code_infix = emit_single_register ? "reg": "regp";
++  char reg_prefix = 'x';
++  unsigned regno_offset = 0;
++  HOST_WIDE_INT offset_increment = 8;
++
++  if (FP_REGNUM_P(regno[0]))
++  {
++    unwind_code_prefix = ".seh_save_f";
++    reg_prefix = 'd';
++    regno_offset = V0_REGNUM;
++  }
++
++  for (unsigned i = 0; i < reg_count; ++i)
++    fprintf (f, "\t%s%s%s\t%c%ld, %ld\n",
++      unwind_code_prefix,
++      unwind_code_infix,
++      unwind_code_suffix,
++      reg_prefix,
++      regno[i] - regno_offset,
++      offset + i * offset_increment);
++}
++#endif
++
+ /* Emit an assembler directive to adjust RSP by OFFSET.  */
+ 
+ static void
+@@ -1388,14 +1467,6 @@ i386_pe_seh_unwind_emit (FILE *out_file, rtx_insn *insn)
+   seh_frame_related_expr (out_file, seh, pat);
+ }
+ 
+-#if defined (TARGET_AARCH64_MS_ABI)
+-#define CALLEE_SAVED_REG_NUMBER(r)		\
+-  (((r) >= R19_REGNUM && (r) <= R30_REGNUM)	\
+-   || ((r) >= V8_REGNUM && (r) <= V15_REGNUM))
+-#else
+-#define CALLEE_SAVED_REG_NUMBER(r) 0
+-#endif
+-
+ static HOST_WIDE_INT
+ seh_parallel_offset (rtx pat, HOST_WIDE_INT wanted_regnum)
+ {
+@@ -1451,7 +1522,7 @@ seh_pattern_emit (FILE *f, struct seh_frame_state *seh, rtx pat)
+       int i, n = XVECLEN (pat, 0);
+       HOST_WIDE_INT regno[2], min_regno = V15_REGNUM;
+       int reg_count = 0;
+-      HOST_WIDE_INT increment = 0;
++      HOST_WIDE_INT offset = 0;
+ 
+       for (i = 0; i < n; ++i)
+ 	{
+@@ -1467,7 +1538,7 @@ seh_pattern_emit (FILE *f, struct seh_frame_state *seh, rtx pat)
+ 	      && GET_CODE (src) == PLUS
+ 	      && XEXP (src, 0) == stack_pointer_rtx)
+ 	  {
+-	    increment = INTVAL (XEXP (src, 1));
++	    offset = INTVAL (XEXP (src, 1));
+ 	  }
+ 
+ 	  if (!seh->after_prologue && GET_CODE (src) == REG)
+@@ -1486,33 +1557,9 @@ seh_pattern_emit (FILE *f, struct seh_frame_state *seh, rtx pat)
+ 
+       if (reg_count == 2)
+       {
+-	HOST_WIDE_INT offset = increment != 0 ? abs (increment) :
+-		       seh_parallel_offset (pat, min_regno);
+-
+-	bool emit_single_register = (regno[1] - regno[0]) != 1;
+-
+-	const char *unwind_code_prefix = ".seh_save_";
+-	const char *unwind_code_infix = emit_single_register ? "reg": "regp";
+-	const char *unwind_code_suffix = increment ? "_x": "";
+-	char reg_prefix = 'x';
+-	unsigned regno_offset = 0;
+-	HOST_WIDE_INT offset_increment = increment ? -8: 8;
+-
+-	if (FP_REGNUM_P(regno[0]))
+-	{
+-	  unwind_code_prefix = ".seh_save_f";
+-	  reg_prefix = 'd';
+-	  regno_offset = V0_REGNUM;
+-	}
+-
+-	for (unsigned i = 0, n = emit_single_register ? 2: 1; i < n; ++i)
+-	  fprintf (f, "\t%s%s%s\t%c%ld, %ld\n",
+-	    unwind_code_prefix,
+-	    unwind_code_infix,
+-	    unwind_code_suffix,
+-	    reg_prefix,
+-	    regno[i] - regno_offset,
+-	    offset + i * offset_increment);
++	if (!offset)
++	  offset = seh_parallel_offset (pat, min_regno);
++	seh_emit_save_pair (f, regno, offset);
+       }
+     }
+   else
+@@ -1586,6 +1633,17 @@ seh_pattern_emit (FILE *f, struct seh_frame_state *seh, rtx pat)
+ 		     && CALLEE_SAVED_REG_NUMBER (REGNO (src))
+ 		     && XEXP (dest, 0) == stack_pointer_rtx)
+ 	      seh_emit_save (f, seh, src, INTVAL (XEXP (dest, 1)));
++	    else if (GET_CODE (dest) == PLUS
++		     && XEXP (dest, 0) == stack_pointer_rtx
++		     && GET_CODE(src) == UNSPEC
++		     && XINT (src, 1) == UNSPEC_STP)
++	      {
++		HOST_WIDE_INT offset = INTVAL (XEXP (dest, 1));
++		rtvec vec = XVEC (src, 0);
++		HOST_WIDE_INT regno[2] = { REGNO (RTVEC_ELT (vec, 0)),
++					   REGNO (RTVEC_ELT (vec, 1))};
++		seh_emit_save_pair (f, regno, offset);
++	      }
+ 	    break;
+ 
+ 	  default:
+@@ -1643,7 +1701,9 @@ aarch64_pe_seh_unwind_emit (FILE *out_file, rtx_insn *insn)
+ 
+ 	case REG_CFA_EXPRESSION:
+ 	case REG_CFA_REGISTER:
++#if !defined (TARGET_AARCH64_MS_ABI)
+ 	case REG_CFA_OFFSET:
++#endif
+ 	  related_exp_needed = false;
+ 	  break;
+ 
+-- 
+2.51.0
+

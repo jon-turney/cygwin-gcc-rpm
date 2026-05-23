@@ -1,0 +1,71 @@
+From 13545fc34247b1b6570ecfc9abceb8c52b56cac1 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Radek=20Barto=C5=88?= <radek.barton@microsoft.com>
+Date: Tue, 28 Jan 2025 21:46:39 +0100
+Subject: [PATCH 29/38] Change long double to 64bit (#3)
+
+---
+ gcc/config/aarch64/aarch64-coff.h |  4 ++++
+ libgfortran/configure             | 10 ++++++----
+ libgfortran/configure.ac          |  7 ++++++-
+ 3 files changed, 16 insertions(+), 5 deletions(-)
+
+diff --git a/gcc/config/aarch64/aarch64-coff.h b/gcc/config/aarch64/aarch64-coff.h
+index aef07e62a9f7..aa44c662ab30 100644
+--- a/gcc/config/aarch64/aarch64-coff.h
++++ b/gcc/config/aarch64/aarch64-coff.h
+@@ -31,9 +31,13 @@
+ #undef PTRDIFF_TYPE
+ #define PTRDIFF_TYPE	"long long int"
+ 
++#define TARGET_LONG_DOUBLE_64 1
++
+ #undef LONG_TYPE_SIZE
+ #define LONG_TYPE_SIZE 32
+ 
++#define __NO_BINARY80__
++
+ #ifndef ASM_GENERATE_INTERNAL_LABEL
+ # define ASM_GENERATE_INTERNAL_LABEL(STRING, PREFIX, NUM)  \
+   sprintf (STRING, "*%s%s%u", LOCAL_LABEL_PREFIX, PREFIX, (unsigned int)(NUM))
+diff --git a/libgfortran/configure b/libgfortran/configure
+index 75cf47e3a194..ac10d3e1ad24 100755
+--- a/libgfortran/configure
++++ b/libgfortran/configure
+@@ -6235,10 +6235,12 @@ fi
+ # or floating point numbers – or may want to reduce the libgfortran size
+ # although they do have the support.
+ LIBGOMP_CHECKED_INT_KINDS="1 2 4 8 16"
+-LIBGOMP_CHECKED_REAL_KINDS="4 8 10 16"
+-
+-
+-
++case $host in
++  aarch64-*-mingw* | aarch64-*-cygwin*)
++    LIBGOMP_CHECKED_REAL_KINDS="4 8" ;;
++  *)
++    LIBGOMP_CHECKED_REAL_KINDS="4 8 10 16" ;;
++esac
+ 
+ # Figure out whether the compiler supports "-ffunction-sections -fdata-sections",
+ # similarly to how libstdc++ does it
+diff --git a/libgfortran/configure.ac b/libgfortran/configure.ac
+index da9ae604cab5..e063a38c88ed 100644
+--- a/libgfortran/configure.ac
++++ b/libgfortran/configure.ac
+@@ -220,7 +220,12 @@ AM_CONDITIONAL(LIBGFOR_MINIMAL, false)
+ # or floating point numbers – or may want to reduce the libgfortran size
+ # although they do have the support.
+ LIBGOMP_CHECKED_INT_KINDS="1 2 4 8 16"
+-LIBGOMP_CHECKED_REAL_KINDS="4 8 10 16"
++case "${host}" in
++  aarch64-*-mingw* | aarch64-*-cygwin*)
++    LIBGOMP_CHECKED_REAL_KINDS="4 8" ;;
++  *)
++    LIBGOMP_CHECKED_REAL_KINDS="4 8 10 16" ;;
++esac
+ 
+ AC_SUBST(LIBGOMP_CHECKED_INT_KINDS)
+ AC_SUBST(LIBGOMP_CHECKED_REAL_KINDS)
+-- 
+2.51.0
+

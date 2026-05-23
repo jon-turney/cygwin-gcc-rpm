@@ -1,0 +1,203 @@
+From 55d50bbced6211ea972c3b0a30b07d596ea9589b Mon Sep 17 00:00:00 2001
+From: Evgeny Karpov <eukarpov@gmail.com>
+Date: Thu, 17 Apr 2025 15:58:14 +0200
+Subject: [PATCH 08/38] Rebase woarm64 aarch64-pe target prototype
+
+---
+ gcc/config.gcc                                |  6 ++++--
+ gcc/config/aarch64/aarch64-protos.h           |  2 ++
+ gcc/config/aarch64/cygming.h                  | 17 ++++++++++++---
+ libgcc/config.host                            | 21 ++++++++++++++++++-
+ libgcc/config/i386/cygming-crtbegin.c         |  5 +++--
+ libgcc/config/i386/cygming-crtend.c           | 14 +++++++++++++
+ .../config/os/mingw32-w64/os_defines.h        |  2 +-
+ libstdc++-v3/config/os/mingw32/os_defines.h   |  2 +-
+ 8 files changed, 59 insertions(+), 10 deletions(-)
+
+diff --git a/gcc/config.gcc b/gcc/config.gcc
+index 8fe99616f825..372a61527280 100644
+--- a/gcc/config.gcc
++++ b/gcc/config.gcc
+@@ -1338,8 +1338,8 @@ aarch64-*-mingw*)
+ 	extra_objs="${extra_objs} aarch64-abi-ms.o winnt.o winnt-dll.o"
+ 	c_target_objs="${c_target_objs} msformat-c.o"
+ 	cxx_target_objs="${cxx_target_objs} msformat-c.o"
+-	d_target_objs="${d_target_objs} winnt-d.o"
+-	tmake_file="${tmake_file} mingw/t-cygming"
++	tmake_file="${tmake_file} t-winnt mingw/t-cygming t-slibgcc"
++	aarch64_multilibs="llp64"
+ 	case ${enable_threads} in
+ 	  "" | yes | win32)
+ 	    thread_file='win32'
+@@ -1352,6 +1352,8 @@ aarch64-*-mingw*)
+ 	use_gcc_stdint=wrap
+ 	user_headers_inc_next_post="${user_headers_inc_next_post} float.h"
+ 	tm_defines="${tm_defines} TARGET_AARCH64_MS_ABI=1"
++	TM_MULTILIB_CONFIG="${TM_MULTILIB_CONFIG},llp64"
++	TM_MULTILIB_CONFIG=`echo $TM_MULTILIB_CONFIG | sed 's/^,//'`
+ 	;;
+ aarch64*-wrs-vxworks*)
+         tm_file="${tm_file} elfos.h aarch64/aarch64-elf.h"
+diff --git a/gcc/config/aarch64/aarch64-protos.h b/gcc/config/aarch64/aarch64-protos.h
+index afacc004cb90..c4c5f98bf62b 100644
+--- a/gcc/config/aarch64/aarch64-protos.h
++++ b/gcc/config/aarch64/aarch64-protos.h
+@@ -1307,5 +1307,7 @@ extern unsigned aarch64_stack_alignment (const_tree exp, unsigned align);
+ 
+ extern rtx aarch64_gen_compare_zero_and_branch (rtx_code code, rtx x,
+ 						rtx_code_label *label);
++extern void aarch64_pe_seh_unwind_emit (FILE *, rtx_insn *);
++extern void aarch64_print_reg (rtx, int, FILE*);
+ 
+ #endif /* GCC_AARCH64_PROTOS_H */
+diff --git a/gcc/config/aarch64/cygming.h b/gcc/config/aarch64/cygming.h
+index 2c76b07d2f20..52be7adad2f9 100644
+--- a/gcc/config/aarch64/cygming.h
++++ b/gcc/config/aarch64/cygming.h
+@@ -95,9 +95,6 @@ still needed for compilation.  */
+ #define TARGET_ASM_UNIQUE_SECTION mingw_pe_unique_section
+ #define TARGET_ENCODE_SECTION_INFO  mingw_pe_encode_section_info
+ 
+-extern void aarch64_pe_seh_unwind_emit (FILE *, rtx_insn *);
+-extern void aarch64_print_reg (rtx, int, FILE*);
+-
+ #define TARGET_VALID_DLLIMPORT_ATTRIBUTE_P mingw_pe_valid_dllimport_attribute_p
+ 
+ /* Output function declarations at the end of the file.  */
+@@ -182,6 +179,20 @@ extern void aarch64_print_reg (rtx, int, FILE*);
+   (fprintf (asm_out_file, "\t.section\t.drectve\n"), \
+    in_section = NULL)
+ 
++/* This implements the `alias' attribute, keeping any stdcall or
++   fastcall decoration.  */
++#undef	ASM_OUTPUT_DEF_FROM_DECLS
++#define	ASM_OUTPUT_DEF_FROM_DECLS(STREAM, DECL, TARGET)			\
++  do									\
++    {									\
++      const char *alias							\
++	= IDENTIFIER_POINTER (DECL_ASSEMBLER_NAME (DECL));		\
++      mingw_pe_maybe_record_exported_symbol (DECL, alias, 0);		\
++      if (TREE_CODE (DECL) == FUNCTION_DECL)				\
++	mingw_pe_declare_type (STREAM, alias,			\
++				       TREE_PUBLIC (DECL), 1);		\
++      ASM_OUTPUT_DEF (STREAM, alias, IDENTIFIER_POINTER (TARGET));	\
++    } while (0)
+ 
+ /* Enable alias attribute support.  */
+ #ifndef SET_ASM_OP
+diff --git a/libgcc/config.host b/libgcc/config.host
+index ac10ccc43404..9c8671b0f704 100644
+--- a/libgcc/config.host
++++ b/libgcc/config.host
+@@ -463,12 +463,31 @@ aarch64-*-mingw*)
+ 	    tmake_thr_file="mingw/t-mingw-mcfgthread"
+ 	    ;;
+ 	esac
+-	tmake_file="${tmake_file} mingw/t-seh-eh ${tmake_thr_file}"
++	# This has to match the logic for DWARF2_UNWIND_INFO in gcc/config/i386/cygming.h
++	if test x$ac_cv_sjlj_exceptions = xyes; then
++		tmake_eh_file="i386/t-sjlj-eh"
++	else
++		tmake_eh_file="mingw/t-seh-eh"
++	fi
++	# Shared libgcc DLL install dir depends on cross/native build.
++	if test x${build} = x${host} ; then
++		tmake_dlldir_file="i386/t-dlldir"
++	else
++		tmake_dlldir_file="i386/t-dlldir-x"
++	fi
++	tmake_file="${tmake_file} ${tmake_eh_file} ${tmake_thr_file} ${tmake_dlldir_file}"
+ 	tmake_file="${tmake_file} t-dfprules"
++	tmake_file="${tmake_file} i386/t-slibgcc-cygming i386/t-cygming i386/t-mingw32"
+ 	tmake_file="${tmake_file} ${cpu_type}/t-aarch64"
+ 	tmake_file="${tmake_file} ${cpu_type}/t-mingw"
+ 	tmake_file="${tmake_file} ${cpu_type}/t-lse"
+ 	tmake_file="${tmake_file} t-crtfm"
++	tmake_file="${tmake_file} t-slibgcc-libgcc"
++	tmake_file="${tmake_file} ${cpu_type}/t-softfp t-softfp"
++	extra_parts="$extra_parts crtbegin.o crtend.o crtfastmath.o"
++	if test x$enable_vtable_verify = xyes; then
++		extra_parts="$extra_parts vtv_start.o vtv_end.o vtv_start_preinit.o vtv_end_preinit.o"
++	fi
+ 	;;
+ alpha*-*-linux*)
+ 	tmake_file="${tmake_file} alpha/t-alpha alpha/t-ieee t-crtfm alpha/t-linux"
+diff --git a/libgcc/config/i386/cygming-crtbegin.c b/libgcc/config/i386/cygming-crtbegin.c
+index 8435a125817f..a0682fca1b5a 100644
+--- a/libgcc/config/i386/cygming-crtbegin.c
++++ b/libgcc/config/i386/cygming-crtbegin.c
+@@ -134,8 +134,9 @@ __gcc_register_frame (void)
+     }
+   else
+     {
+-      register_frame_fn = __register_frame_info;
+-      deregister_frame_fn = __deregister_frame_info;
++      // FIXME
++      // register_frame_fn = __register_frame_info;
++      // deregister_frame_fn = __deregister_frame_info;
+     }
+   if (register_frame_fn)
+      register_frame_fn (__EH_FRAME_BEGIN__, &obj);
+diff --git a/libgcc/config/i386/cygming-crtend.c b/libgcc/config/i386/cygming-crtend.c
+index 3dfae1eb7e42..704d64f52707 100644
+--- a/libgcc/config/i386/cygming-crtend.c
++++ b/libgcc/config/i386/cygming-crtend.c
+@@ -58,7 +58,14 @@ extern void __gcc_deregister_frame (void);
+ 
+ #pragma GCC diagnostic push
+ #pragma GCC diagnostic ignored "-Wprio-ctor-dtor"
++
++#ifdef __aarch64__
++/* constructor not yet enabled for aarch64 */
++static void register_frame_ctor (void);
++#else
+ static void register_frame_ctor (void) __attribute__ ((constructor (0)));
++#endif
++
+ #pragma GCC diagnostic pop
+ 
+ static void
+@@ -70,7 +77,14 @@ register_frame_ctor (void)
+ #if !DEFAULT_USE_CXA_ATEXIT
+ #pragma GCC diagnostic push
+ #pragma GCC diagnostic ignored "-Wprio-ctor-dtor"
++
++#ifdef __aarch64__
++/* destructor not yet enabled for aarch64 */
++static void deregister_frame_dtor (void);
++#else
+ static void deregister_frame_dtor (void) __attribute__ ((destructor (0)));
++#endif
++
+ #pragma GCC diagnostic pop
+ 
+ static void
+diff --git a/libstdc++-v3/config/os/mingw32-w64/os_defines.h b/libstdc++-v3/config/os/mingw32-w64/os_defines.h
+index 6d4dd9b1c06b..a30ca2fcc0ac 100644
+--- a/libstdc++-v3/config/os/mingw32-w64/os_defines.h
++++ b/libstdc++-v3/config/os/mingw32-w64/os_defines.h
+@@ -74,7 +74,7 @@
+ #define _GLIBCXX_CDTOR_CALLABI __thiscall
+ #endif
+ 
+-#ifdef __x86_64__
++#if defined (__x86_64__) || defined (__aarch64__)
+ #define _GLIBCXX_LLP64 1
+ // See libstdc++/69506
+ #define _GLIBCXX_USE_WEAK_REF 0
+diff --git a/libstdc++-v3/config/os/mingw32/os_defines.h b/libstdc++-v3/config/os/mingw32/os_defines.h
+index c4d262383336..ed45b26ca5ec 100644
+--- a/libstdc++-v3/config/os/mingw32/os_defines.h
++++ b/libstdc++-v3/config/os/mingw32/os_defines.h
+@@ -71,7 +71,7 @@
+ #define _GLIBCXX_CDTOR_CALLABI __thiscall
+ #endif
+ 
+-#ifdef __x86_64__
++#if defined (__x86_64__) || defined (__aarch64__)
+ #define _GLIBCXX_LLP64 1
+ #endif
+ 
+-- 
+2.51.0
+
