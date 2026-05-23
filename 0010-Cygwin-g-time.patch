@@ -1,4 +1,4 @@
-From 9384ca46031bf2cbee6820ff2bc27687b90a2407 Mon Sep 17 00:00:00 2001
+From 5adcc25446d8518905e7c3499ad71cf8c343c395 Mon Sep 17 00:00:00 2001
 From: Jonathan Yong <10walls@gmail.com>
 Date: Tue, 8 Sep 2020 15:21:56 +0200
 Subject: [PATCH 10/12] Cygwin: g++ time
@@ -9,10 +9,10 @@ Subject: [PATCH 10/12] Cygwin: g++ time
  2 files changed, 6 insertions(+)
 
 diff --git a/libstdc++-v3/acinclude.m4 b/libstdc++-v3/acinclude.m4
-index 7c843204d70..ae496310548 100644
+index 8dc9e17b214..83c6667552d 100644
 --- a/libstdc++-v3/acinclude.m4
 +++ b/libstdc++-v3/acinclude.m4
-@@ -1369,7 +1369,10 @@ AC_DEFUN([GLIBCXX_ENABLE_LIBSTDCXX_TIME], [
+@@ -1772,7 +1772,10 @@ AC_DEFUN([GLIBCXX_ENABLE_LIBSTDCXX_TIME], [
  
      case "${target_os}" in
        cygwin*)
@@ -24,10 +24,10 @@ index 7c843204d70..ae496310548 100644
        mingw*)
          ac_has_win32_sleep=yes
 diff --git a/libstdc++-v3/configure b/libstdc++-v3/configure
-index 81329bba8e5..5826cee053a 100755
+index 6713e4504b1..267d1b19135 100755
 --- a/libstdc++-v3/configure
 +++ b/libstdc++-v3/configure
-@@ -20605,7 +20605,10 @@ ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
+@@ -21460,7 +21460,10 @@ ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
  
      case "${target_os}" in
        cygwin*)
@@ -39,5 +39,5 @@ index 81329bba8e5..5826cee053a 100755
        mingw*)
          ac_has_win32_sleep=yes
 -- 
-2.45.1
+2.51.0
 

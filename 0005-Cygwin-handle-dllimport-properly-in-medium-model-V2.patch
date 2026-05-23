@@ -1,4 +1,4 @@
-From e117aa60080ef23809964fdc6ac3bc5504d8e473 Mon Sep 17 00:00:00 2001
+From 980b93663fec0d657f2ece05a95076e5bfaa1c18 Mon Sep 17 00:00:00 2001
 From: Jonathan Yong <10walls@gmail.com>
 Date: Tue, 8 Sep 2020 14:56:50 +0200
 Subject: [PATCH 05/12] Cygwin: handle dllimport properly in medium model V2
@@ -8,10 +8,10 @@ Subject: [PATCH 05/12] Cygwin: handle dllimport properly in medium model V2
  1 file changed, 5 insertions(+)
 
 diff --git a/gcc/config/i386/predicates.md b/gcc/config/i386/predicates.md
-index 6d4d2bbaf6d..fa67ffd4351 100644
+index 998212be33a..89dad5adcb2 100644
 --- a/gcc/config/i386/predicates.md
 +++ b/gcc/config/i386/predicates.md
-@@ -224,6 +224,7 @@
+@@ -215,6 +215,7 @@
  	switch (XINT (XEXP (op, 0), 1))
  	  {
  	  case UNSPEC_GOTPCREL:
@@ -19,7 +19,7 @@ index 6d4d2bbaf6d..fa67ffd4351 100644
  	  case UNSPEC_DTPOFF:
  	  case UNSPEC_GOTNTPOFF:
  	  case UNSPEC_NTPOFF:
-@@ -329,6 +330,10 @@
+@@ -321,6 +322,10 @@
        if (ix86_force_load_from_GOT_p (op))
  	return false;
  
@@ -31,5 +31,5 @@ index 6d4d2bbaf6d..fa67ffd4351 100644
        return (ix86_cmodel == CM_SMALL
  	      || (ix86_cmodel == CM_MEDIUM
 -- 
-2.45.1
+2.51.0
 

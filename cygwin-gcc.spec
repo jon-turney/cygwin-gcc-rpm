@@ -1,7 +1,7 @@
 %global __os_install_post /usr/lib/rpm/brp-compress %{nil}
 
-%global gcc_major 13
-%global gcc_minor 4
+%global gcc_major 16
+%global gcc_minor 1
 %global gcc_micro 0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %%{release}, append them after %%{gcc_release} on Release: line.
@@ -15,6 +15,8 @@
 # Until annobin is fixed (#1519165).
 %undefine _annotated_build
 %endif
+
+%undefine cygwin_build_aarch64
 
 Name:           cygwin-gcc
 Version:        %{gcc_major}.%{gcc_minor}.%{gcc_micro}
@@ -64,14 +66,15 @@ Patch10:	0010-Cygwin-g-time.patch
 Patch11:	0011-Cygwin-newlib-ftm.patch
 Patch12:	0012-Cygwin-define-STD_UNIX.patch
 
+Patch400:	0401-libstdc-Cygwin-fix-a-handle-leak-in-mutex_base.patch
+Patch401:	0401-fix-build-gcc-opts.cc.patch
+Patch402:	0402-fix-build-libcpp-lex.cc.patch
+Patch403:	0403-fix-build-adaint.c.patch
 
 # Fedora-specific patches
 Patch1001:      1001-textdomain.patch
 Patch1002:      1002-cygwin-ld-flags.patch
 Patch1003:	1003-no-format-security.patch
-
-# Upstream patches
-#Patch2001:      pr47030.patch
 
 %description
 Cygwin cross-compiler (GCC) suite.
