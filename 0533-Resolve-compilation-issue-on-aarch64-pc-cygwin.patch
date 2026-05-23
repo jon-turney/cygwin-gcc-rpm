@@ -1,0 +1,25 @@
+From bdec9025d17ac23a670c6a5d9b0da4fd5ddf61de Mon Sep 17 00:00:00 2001
+From: Evgeny Karpov <evgeny@kmaps.co>
+Date: Sat, 4 Oct 2025 15:57:08 +0100
+Subject: [PATCH 33/38] Resolve compilation issue on aarch64-pc-cygwin
+
+---
+ libstdc++-v3/src/c++20/syncbuf.cc | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/libstdc++-v3/src/c++20/syncbuf.cc b/libstdc++-v3/src/c++20/syncbuf.cc
+index 13047b749809..708329226609 100644
+--- a/libstdc++-v3/src/c++20/syncbuf.cc
++++ b/libstdc++-v3/src/c++20/syncbuf.cc
+@@ -25,6 +25,8 @@
+ #include <syncstream>
+ #include <mutex>
+ #include <bits/functional_hash.h>
++// It has been added to resolve a compilation issue on aarch64-pc-cygwin
++#include <bits/std_mutex.h>
+ 
+ #if _GLIBCXX_HAS_GTHREADS
+ namespace std _GLIBCXX_VISIBILITY(default)
+-- 
+2.51.0
+
