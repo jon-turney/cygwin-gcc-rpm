@@ -1,0 +1,26 @@
+From bddcc6ae2a74d0f1c52362699f22db727ac39364 Mon Sep 17 00:00:00 2001
+From: Evgeny Karpov <evgeny@kmaps.co>
+Date: Mon, 22 Dec 2025 15:37:56 +0100
+Subject: [PATCH 38/38] Disable float80
+
+Signed-off-by: Evgeny Karpov <evgeny@kmaps.co>
+---
+ gcc/config/aarch64/aarch64-abi-ms.h | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/gcc/config/aarch64/aarch64-abi-ms.h b/gcc/config/aarch64/aarch64-abi-ms.h
+index 1e1fb3fa4007..bc5941dd507b 100644
+--- a/gcc/config/aarch64/aarch64-abi-ms.h
++++ b/gcc/config/aarch64/aarch64-abi-ms.h
+@@ -31,6 +31,8 @@ along with GCC; see the file COPYING3.  If not see
+ #undef  STATIC_CHAIN_REGNUM
+ #define STATIC_CHAIN_REGNUM R17_REGNUM
+ 
++#define __NO_BINARY80__
++
+ #define ASM_COMMENT_START "//"
+ 
+ /* ASM_OUTPUT_TYPE_DIRECTIVE is not yet supported by binutils for the
+-- 
+2.51.0
+

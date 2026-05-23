@@ -1,0 +1,23 @@
+From 834b9ad80d0283002365663912afe050cfe3f9cd Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Radek=20Barto=C5=88?= <radek.barton@microsoft.com>
+Date: Mon, 4 Nov 2024 14:47:51 +0100
+Subject: [PATCH 14/38] Allow some warnings when building libgcc (#36)
+
+---
+ libgcc/config/aarch64/t-aarch64 | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/libgcc/config/aarch64/t-aarch64 b/libgcc/config/aarch64/t-aarch64
+index 7bc51ad65248..65171f6e07a0 100644
+--- a/libgcc/config/aarch64/t-aarch64
++++ b/libgcc/config/aarch64/t-aarch64
+@@ -31,4 +31,5 @@ LIB2ADDEH += \
+ 	$(srcdir)/config/aarch64/__arm_za_disable.S
+ 
+ SHLIB_MAPFILES += $(srcdir)/config/aarch64/libgcc-sme.ver
+-LIBGCC2_CFLAGS += $(WERROR) -Wno-prio-ctor-dtor
++LIBGCC2_CFLAGS += $(WERROR) -Wno-prio-ctor-dtor -Wno-error=attributes -Wno-error=unused-parameter \
++	-Wno-error=missing-prototypes -Wno-error=unused-function
+-- 
+2.51.0
+

@@ -1,0 +1,26 @@
+From d2713ab413ed45df0825810be6d9aab0e6ce470c Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Radek=20Barto=C5=88?= <radek.barton@microsoft.com>
+Date: Mon, 1 Jul 2024 20:33:07 +0200
+Subject: [PATCH 12/38] Fix undefined references to `__gthr_win32_*` shared
+ libgcc is built (#21)
+
+---
+ libgcc/config.host | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/libgcc/config.host b/libgcc/config.host
+index 9c8671b0f704..1a5c07ae5e49 100644
+--- a/libgcc/config.host
++++ b/libgcc/config.host
+@@ -477,7 +477,7 @@ aarch64-*-mingw*)
+ 	fi
+ 	tmake_file="${tmake_file} ${tmake_eh_file} ${tmake_thr_file} ${tmake_dlldir_file}"
+ 	tmake_file="${tmake_file} t-dfprules"
+-	tmake_file="${tmake_file} i386/t-slibgcc-cygming i386/t-cygming i386/t-mingw32"
++	tmake_file="${tmake_file} i386/t-slibgcc-cygming i386/t-slibgcc-mingw i386/t-cygming i386/t-mingw32"
+ 	tmake_file="${tmake_file} ${cpu_type}/t-aarch64"
+ 	tmake_file="${tmake_file} ${cpu_type}/t-mingw"
+ 	tmake_file="${tmake_file} ${cpu_type}/t-lse"
+-- 
+2.51.0
+

@@ -9,7 +9,7 @@
 %global gcc_micro 0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %%{release}, append them after %%{gcc_release} on Release: line.
-%global gcc_release 1
+%global gcc_release 2
 
 %global _performance_build 1
 # Hardening slows the compiler way too much.
@@ -31,6 +31,7 @@ URL:            http://gcc.gnu.org
 
 BuildRequires:  gcc gcc-c++
 BuildRequires:  texinfo
+
 BuildRequires:  cygwin32-filesystem
 BuildRequires:  cygwin32-binutils
 BuildRequires:  cygwin32-w32api-headers
@@ -49,6 +50,16 @@ BuildRequires:  cygwin64-w32api-runtime
 BuildRequires:  cygwin64 >= 3.0.0
 %else
 BuildRequires:  cygwin64-bootstrap-headers
+%endif
+
+BuildRequires:  cygwin-aarch64-filesystem
+BuildRequires:  cygwin-aarch64-binutils
+BuildRequires:  cygwin-aarch64-w32api-headers
+%if ! %{bootstrap}
+BuildRequires:  cygwin-aarch64-w32api-runtime
+BuildRequires:  cygwin-aarch64 >= 3.0.0
+%else
+BuildRequires:  cygwin-aarch64-bootstrap-headers
 %endif
 
 BuildRequires:  gmp-devel
@@ -82,6 +93,37 @@ Patch400:	0401-libstdc-Cygwin-fix-a-handle-leak-in-mutex_base.patch
 Patch401:	0401-fix-build-gcc-opts.cc.patch
 Patch402:	0402-fix-build-libcpp-lex.cc.patch
 Patch403:	0403-fix-build-adaint.c.patch
+
+# current patch set of Evgeny Karpov, very approximately rebased onto 16.1.0
+Patch501:	0501-aarch64-Bypass-some-warnings-in-MinGW.patch
+Patch502:	0502-aarch64-Add-stdcall-and-cdecl-attributes.patch
+Patch503:	0503-Rename-SEH-functions-for-reuse-in-AArch64.patch
+Patch504:	0504-aarch64-Add-SEH-stack-unwinding-and-C-exceptions.patch
+Patch505:	0505-Support-SEH-for-fragmented-functions.patch
+Patch506:	0506-Fix-unwiding-code-for-a-floating-point-register-pair.patch
+Patch507:	0507-Fix-unwiding-codes-when-stack-probing-is-applied.patch
+Patch508:	0508-Rebase-woarm64-aarch64-pe-target-prototype.patch
+Patch509:	0509-Fix-build-on-x86_64-pc-linux-gnu-when-host-is-aarch6.patch
+Patch510:	0510-Fix-undefined-reference-to-mingw-10.patch
+Patch511:	0511-Fix-missing-aarch64-opt.url-files-after-rebase.patch
+Patch512:	0512-Fix-undefined-references-to-__gthr_win32_-shared-lib.patch
+Patch513:	0513-Build-configuration-fixes-to-enable-native-aarch64-w.patch
+Patch514:	0514-Allow-some-warnings-when-building-libgcc-36.patch
+Patch515:	0515-Fix-build-of-winnt-d.cc-when-D-language-is-enabled.-.patch
+
+Patch528:	0528-Add-aarch64-pc-cygwin-target.patch
+Patch529:	0529-Change-long-double-to-64bit-3.patch
+Patch530:	0530-Fix.patch
+Patch531:	0531-Add-support-for-shared-attribute-41.patch
+Patch532:	0532-Fix-some-configuration-checks-ignored-for-aarch64-by.patch
+Patch533:	0533-Resolve-compilation-issue-on-aarch64-pc-cygwin.patch
+Patch534:	0534-Fix-unwinding-for-nonconsecutive-registers-2.patch
+Patch535:	0535-Add-SEH-unwinding-support-for-UNSPEC_STP-4.patch
+Patch536:	0536-Fix-aarch64-unwinding-with-debugger-attached-3.patch
+Patch537:	0537-Add-MS-variadic-ABI-support-to-aarch64-pc-cygwin-tar.patch
+Patch538:	0538-Disable-float80.patch
+Patch539:	0001-libgcc-select-Win32-enable-execute-stack-on-Win32-aa.patch
+Patch540:	0003-Workaound-unable-to-emulate-TF-error.patch
 
 # Bootstrapping patches
 Patch601:       0001-libgcc-Respect-inhibit_libc-in-enable-execute-stack-.patch
@@ -241,6 +283,74 @@ Provides:  cygwin64(cyggfortran-5.dll)
 Cygwin x86_64 cross-compiler for FORTRAN.
 
 
+%package -n cygwin-aarch64-gcc
+Summary: Cygwin aarch64 cross-compiler for C
+Group:   Development/Languages
+# NB: Explicit cygwin-filesystem dependency is REQUIRED here.
+Requires:       cygwin-aarch64-filesystem
+Requires:       cygwin-aarch64-binutils
+%if ! %{bootstrap}
+Requires:       cygwin-aarch64-default-manifest
+Requires:       cygwin-aarch64-w32api-runtime
+Requires:       cygwin-aarch64 >= 3.0.0
+%else
+Requires:       cygwin-aarch64-bootstrap-headers
+%endif
+Requires:       cygwin-aarch64-cpp = %{version}-%{release}
+# We don't run the automatic dependency scripts which would
+# normally detect and provide the following DLLs:
+%if ! %{bootstrap}
+Provides:       cygwin-aarch64(cygatomic-1.dll)
+Provides:       cygwin-aarch64(cyggcc_s-seh-1.dll)
+Provides:       cygwin-aarch64(cyggomp-1.dll)
+Provides:       cygwin-aarch64(cygquadmath-0.dll)
+%endif
+# prevent update errors
+Obsoletes:      cygwin-aarch64-gcc-gnat < %{version}-%{release}
+Obsoletes:      cygwin-aarch64-gcc-objc < %{version}-%{release}
+Obsoletes:      cygwin-aarch64-gcc-objc++ < %{version}-%{release}
+
+
+%description -n cygwin-aarch64-gcc
+Cygwin aarch64 cross-compiler (GCC) for C.
+
+%package -n cygwin-aarch64-cpp
+Summary:   Cygwin aarch64 cross-C Preprocessor
+Group:     Development/Languages
+Requires:  %{name}-common = %{version}-%{release}
+
+%description -n cygwin-aarch64-cpp
+Cygwin aarch64 cross-C Preprocessor
+
+
+%package -n cygwin-aarch64-gcc-c++
+Summary: Cygwin aarch64 cross-compiler for C++
+Group: Development/Languages
+Requires: cygwin-aarch64-gcc = %{version}-%{release}
+# We don't run the automatic dependency scripts which would
+# normally detect and provide the following DLL:
+%if ! %{bootstrap}
+Provides:  cygwin-aarch64(cygstdc++-6.dll)
+%endif
+
+%description -n cygwin-aarch64-gcc-c++
+Cygwin aarch64 cross-compiler for C++.
+
+
+%package -n cygwin-aarch64-gcc-gfortran
+Summary: Cygwin aarch64 cross-compiler for FORTRAN
+Group: Development/Languages
+Requires:  cygwin-aarch64-gcc = %{version}-%{release}
+# We don't run the automatic dependency scripts which would
+# normally detect and provide the following DLL:
+%if ! %{bootstrap}
+Provides:  cygwin-aarch64(cyggfortran-5.dll)
+%endif
+
+%description -n cygwin-aarch64-gcc-gfortran
+Cygwin aarch64 cross-compiler for FORTRAN.
+
+
 %prep
 %autosetup -n gcc-%{version} -p1
 
@@ -298,12 +408,11 @@ CONFIGURE_OPTS="\
   --enable-libatomic \
   --enable-libgomp \
   --disable-libssp \
-  --enable-libquadmath --enable-libquadmath-support \
   --enable-libstdcxx-filesystem-ts \
-  --with-default-libstdcxx-abi=gcc4-compatible \
   --with-bugurl=https://cygwin.com
 "
 
+%if 0%{?cygwin_build_32bit} == 1
 mkdir -p build_32bit
 pushd build_32bit
 
@@ -314,10 +423,15 @@ CC="%{__cc} ${RPM_OPT_FLAGS}" \
   --with-arch=i686 --with-tune=generic \
   --with-sysroot=%{cygwin32_sysroot} \
   --disable-sjlj-exceptions \
+  --enable-libquadmath \
+  --enable-libquadmath-support \
+  --with-default-libstdcxx-abi=gcc4-compatible \
   --with-python-dir=/share/gcc-%{gcc_major}/%{cygwin32_target}/python
 
 popd
+%endif
 
+%if 0%{?cygwin_build_64bit} == 1
 mkdir -p build_64bit
 pushd build_64bit
 
@@ -327,9 +441,30 @@ CC="%{__cc} ${RPM_OPT_FLAGS}" \
   --target=%{cygwin64_target} \
   --with-tune=generic \
   --with-sysroot=%{cygwin64_sysroot} \
+  --enable-libquadmath \
+  --enable-libquadmath-support \
+  --with-default-libstdcxx-abi=gcc4-compatible \
   --with-python-dir=/share/gcc-%{gcc_major}/%{cygwin64_target}/python
 
 popd
+%endif
+
+%if 0%{?cygwin_build_aarch64} == 1
+mkdir -p build_aarch64
+pushd build_aarch64
+
+CC="%{__cc} ${RPM_OPT_FLAGS}" \
+../configure \
+  $CONFIGURE_OPTS \
+  --target=%{cygwin_aarch64_target} \
+  --with-arch=armv8.1-a -with-tune=cortex-x1 \
+  --with-sysroot=%{cygwin_aarch64_sysroot} \
+  --disable-libquadmath \
+  --disable-libquadmath-support \
+  --with-python-dir=/share/gcc-%{gcc_major}/%{cygwin_aarch64_target}/python
+
+popd
+%endif
 
 # if bootstrapping, only build gcc core and libgcc
 %if %{bootstrap}
@@ -353,26 +488,46 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/libiberty*
 rm -f $RPM_BUILD_ROOT%{_mandir}/man7/*
 
 mkdir -p $RPM_BUILD_ROOT/lib
+%if 0%{?cygwin_build_32bit} == 1
 ln -sf ..%{_prefix}/bin/%{cygwin32_target}-cpp \
   $RPM_BUILD_ROOT/lib/%{cygwin32_target}-cpp
+%endif
+%if 0%{?cygwin_build_64bit} == 1
 ln -sf ..%{_prefix}/bin/%{cygwin64_target}-cpp \
   $RPM_BUILD_ROOT/lib/%{cygwin64_target}-cpp
+%endif
+%if 0%{?cygwin_build_aarch64} == 1
+ln -sf ..%{_prefix}/bin/%{cygwin_aarch64_target}-cpp \
+  $RPM_BUILD_ROOT/lib/%{cygwin_aarch64_target}-cpp
+%endif
+
 
 # clean-up include-fixed
 rm -fr $RPM_BUILD_ROOT%{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/include-fixed/
 rm -fr $RPM_BUILD_ROOT%{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/include-fixed/
+rm -fr $RPM_BUILD_ROOT%{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/include-fixed/
 
 # libtool installs DLL files of runtime libraries into $(libdir)/../bin,
 # but we need them in cygwin*_bindir.
 %if ! %{bootstrap}
+%if 0%{?cygwin_build_32bit} == 1
 mkdir -p $RPM_BUILD_ROOT%{cygwin32_bindir}
 mv $RPM_BUILD_ROOT%{_prefix}/lib/gcc/%{cygwin32_target}/*.dll \
   $RPM_BUILD_ROOT%{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/*.dll \
   $RPM_BUILD_ROOT%{cygwin32_bindir}
+%endif
+%if 0%{?cygwin_build_64bit} == 1
 mkdir -p $RPM_BUILD_ROOT%{cygwin64_bindir}
 mv $RPM_BUILD_ROOT%{_prefix}/lib/gcc/%{cygwin64_target}/*.dll \
   $RPM_BUILD_ROOT%{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/*.dll \
   $RPM_BUILD_ROOT%{cygwin64_bindir}
+%endif
+%if 0%{?cygwin_build_aarch64} == 1
+mkdir -p $RPM_BUILD_ROOT%{cygwin_aarch64_bindir}
+mv $RPM_BUILD_ROOT%{_prefix}/lib/gcc/%{cygwin_aarch64_target}/*.dll \
+  $RPM_BUILD_ROOT%{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/*.dll \
+  $RPM_BUILD_ROOT%{cygwin_aarch64_bindir}
+%endif
 %endif
 
 # Don't want the *.la files.
@@ -391,6 +546,7 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %doc gcc/README* gcc/COPYING*
 
 
+%if 0%{?cygwin_build_32bit} == 1
 %files -n cygwin32-gcc
 %{_bindir}/%{cygwin32_target}-gcc
 %{_bindir}/%{cygwin32_target}-gcc-%{gcc_major}
@@ -495,8 +651,10 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/finclude/
 %{cygwin32_bindir}/cyggfortran-5.dll
 %endif
+%endif
 
 
+%if 0%{?cygwin_build_64bit} == 1
 %files -n cygwin64-gcc
 %{_bindir}/%{cygwin64_target}-gcc
 %{_bindir}/%{cygwin64_target}-gcc-%{gcc_major}
@@ -600,6 +758,119 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libgfortran.spec
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/finclude/
 %{cygwin64_bindir}/cyggfortran-5.dll
+%endif
+%endif
+
+
+%if 0%{?cygwin_build_aarch64} == 1
+%files -n cygwin-aarch64-gcc
+%{_bindir}/%{cygwin_aarch64_target}-gcc
+%{_bindir}/%{cygwin_aarch64_target}-gcc-%{gcc_major}
+%{_bindir}/%{cygwin_aarch64_target}-gcc-ar
+%{_bindir}/%{cygwin_aarch64_target}-gcc-nm
+%{_bindir}/%{cygwin_aarch64_target}-gcc-ranlib
+%if ! %{bootstrap}
+%{_bindir}/%{cygwin_aarch64_target}-gcov
+%{_bindir}/%{cygwin_aarch64_target}-gcov-dump
+%{_bindir}/%{cygwin_aarch64_target}-gcov-tool
+%endif
+%{_bindir}/%{cygwin_aarch64_target}-lto-dump
+%{_mandir}/man1/%{cygwin_aarch64_target}-gcc.1*
+%{_mandir}/man1/%{cygwin_aarch64_target}-gcov.1*
+%{_mandir}/man1/%{cygwin_aarch64_target}-gcov-dump.1*
+%{_mandir}/man1/%{cygwin_aarch64_target}-gcov-tool.1*
+%{_mandir}/man1/%{cygwin_aarch64_target}-lto-dump.1*
+%dir %{_prefix}/lib/gcc/%{cygwin_aarch64_target}
+%dir %{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}
+%{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/crtbegin.o
+%{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/crtbeginS.o
+%{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/crtend.o
+%{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/crtfastmath.o
+%if ! %{bootstrap}
+%{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/libatomic.a
+%{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/libatomic.dll.a
+%{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/libatomic_asneeded.a
+%endif
+%{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/libgcc.a
+%if ! %{bootstrap}
+%{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/libgcc_eh.a
+%{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/libgcc_s.dll.a
+%{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/libgcov.a
+%{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/libgomp.a
+%{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/libgomp.dll.a
+%{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/libgomp.spec
+%if 0
+%{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/libquadmath.a
+%{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/libquadmath.dll.a
+%endif
+%endif
+%dir %{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/include
+%{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/include/*.h
+%{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/install-tools/
+%{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/plugin/
+%{_libexecdir}/gcc/%{cygwin_aarch64_target}/%{gcc_major}/install-tools/
+%if ! %{bootstrap}
+%{_libexecdir}/gcc/%{cygwin_aarch64_target}/%{gcc_major}/liblto_plugin.so
+%endif
+%{_libexecdir}/gcc/%{cygwin_aarch64_target}/%{gcc_major}/lto1
+%{_libexecdir}/gcc/%{cygwin_aarch64_target}/%{gcc_major}/lto-wrapper
+%{_libexecdir}/gcc/%{cygwin_aarch64_target}/%{gcc_major}/plugin/
+%if ! %{bootstrap}
+%dir %{_datadir}/gcc-%{gcc_major}
+%dir %{_datadir}/gcc-%{gcc_major}/%{cygwin_aarch64_target}
+%{cygwin_aarch64_bindir}/cygatomic-1.dll
+%{cygwin_aarch64_bindir}/cyggcc_s-seh-1.dll
+%{cygwin_aarch64_bindir}/cyggomp-1.dll
+%if 0
+%{cygwin_aarch64_bindir}/cygquadmath-0.dll
+%endif
+%endif
+
+
+%files -n cygwin-aarch64-cpp
+/lib/%{cygwin_aarch64_target}-cpp
+%{_bindir}/%{cygwin_aarch64_target}-cpp
+%{_mandir}/man1/%{cygwin_aarch64_target}-cpp.1*
+%dir %{_prefix}/lib/gcc/%{cygwin_aarch64_target}
+%dir %{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}
+%{_libexecdir}/gcc/%{cygwin_aarch64_target}/%{gcc_major}/cc1
+
+
+%files -n cygwin-aarch64-gcc-c++
+%{_bindir}/%{cygwin_aarch64_target}-g++
+%{_bindir}/%{cygwin_aarch64_target}-c++
+%{_mandir}/man1/%{cygwin_aarch64_target}-g++.1*
+%{_libexecdir}/gcc/%{cygwin_aarch64_target}/%{gcc_major}/cc1plus
+%{_libexecdir}/gcc/%{cygwin_aarch64_target}/%{gcc_major}/collect2
+%if ! %{bootstrap}
+%{_libexecdir}/gcc/%{cygwin_aarch64_target}/%{gcc_major}/g++-mapper-server
+%{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/include/c++/
+%{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/libstdc++.a
+%{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/libstdc++.dll.a
+%{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/libstdc++.dll.a-gdb.py
+%{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/libstdc++.modules.json
+%{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/libstdc++exp.a
+%{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/libstdc++fs.a
+%{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/libsupc++.a
+%dir %{_datadir}/gcc-%{gcc_major}/%{cygwin_aarch64_target}/python
+%{_datadir}/gcc-%{gcc_major}/%{cygwin_aarch64_target}/python/libstdcxx/
+%{cygwin_aarch64_bindir}/cygstdc++-6.dll
+%endif
+
+
+%files -n cygwin-aarch64-gcc-gfortran
+%{_bindir}/%{cygwin_aarch64_target}-gfortran
+%{_mandir}/man1/%{cygwin_aarch64_target}-gfortran.1*
+%{_libexecdir}/gcc/%{cygwin_aarch64_target}/%{gcc_major}/f951
+%if ! %{bootstrap}
+%{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/libcaf_single.a
+%{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/libcaf_shmem.a
+%{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/libgfortran.a
+%{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/libgfortran.dll.a
+%{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/libgfortran.spec
+%{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/finclude/
+%{cygwin_aarch64_bindir}/cyggfortran-5.dll
+%endif
 %endif
 
 
