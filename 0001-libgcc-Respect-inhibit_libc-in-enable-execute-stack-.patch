@@ -1,0 +1,38 @@
+From 62afcd8612d571fb9e607af44002ac10fbd632d1 Mon Sep 17 00:00:00 2001
+From: Jon Turney <jon.turney@dronecode.org.uk>
+Date: Fri, 29 May 2026 09:36:25 +0100
+Subject: [PATCH] libgcc: Respect inhibit_libc in
+ enable-execute-stack-mingw32.c
+
+To facilitate bootstrapping, avoid including the (probably non-existent
+in those circumstances) <stdlib.h> into enable-execute-stack-mingw32.c
+in inhibit_libc mode.
+
+(We also need to provide an actual prototype of abort(), otherwise gcc
+complains that its implicit declaration isn't compatible with the
+built-in declaration.)
+
+Signed-off-by: Jon Turney <jon.turney@dronecode.org.uk>
+---
+ libgcc/config/i386/enable-execute-stack-mingw32.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/libgcc/config/i386/enable-execute-stack-mingw32.c b/libgcc/config/i386/enable-execute-stack-mingw32.c
+index c144af563928..3688394efbc3 100644
+--- a/libgcc/config/i386/enable-execute-stack-mingw32.c
++++ b/libgcc/config/i386/enable-execute-stack-mingw32.c
+@@ -23,7 +23,11 @@
+    <http://www.gnu.org/licenses/>.  */
+ 
+ #define WIN32_LEAN_AND_MEAN
++#if !defined(inhibit_libc)
+ #include <stdlib.h>
++#else
++void abort(void);
++#endif
+ #include <windows.h>
+ 
+ extern void __enable_execute_stack (void *);
+-- 
+2.51.0
+
