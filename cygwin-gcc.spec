@@ -1,7 +1,7 @@
 %global __os_install_post /usr/lib/rpm/brp-compress %{nil}
 
-%global gcc_major 13
-%global gcc_minor 4
+%global gcc_major 16
+%global gcc_minor 1
 %global gcc_micro 0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %%{release}, append them after %%{gcc_release} on Release: line.
@@ -64,14 +64,15 @@ Patch10:	0010-Cygwin-g-time.patch
 Patch11:	0011-Cygwin-newlib-ftm.patch
 Patch12:	0012-Cygwin-define-STD_UNIX.patch
 
+Patch400:	0401-libstdc-Cygwin-fix-a-handle-leak-in-mutex_base.patch
+Patch401:	0401-fix-build-gcc-opts.cc.patch
+Patch402:	0402-fix-build-libcpp-lex.cc.patch
+Patch403:	0403-fix-build-adaint.c.patch
 
 # Fedora-specific patches
 Patch1001:      1001-textdomain.patch
 Patch1002:      1002-cygwin-ld-flags.patch
 Patch1003:	1003-no-format-security.patch
-
-# Upstream patches
-#Patch2001:      pr47030.patch
 
 %description
 Cygwin cross-compiler (GCC) suite.
@@ -369,6 +370,7 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/crtfastmath.o
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libatomic.a
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libatomic.dll.a
+%{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libatomic_asneeded.a
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libgcc.a
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libgcc_eh.a
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libgcc_s.dll.a
@@ -415,6 +417,7 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libstdc++.a
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libstdc++.dll.a
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libstdc++.dll.a-gdb.py
+%{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libstdc++.modules.json
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libstdc++exp.a
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libstdc++fs.a
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libsupc++.a
@@ -428,6 +431,7 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %{_mandir}/man1/%{cygwin32_target}-gfortran.1*
 %{_libexecdir}/gcc/%{cygwin32_target}/%{gcc_major}/f951
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libcaf_single.a
+%{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libcaf_shmem.a
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libgfortran.a
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libgfortran.dll.a
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libgfortran.spec
@@ -458,6 +462,7 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/crtfastmath.o
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libatomic.a
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libatomic.dll.a
+%{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libatomic_asneeded.a
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libgcc.a
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libgcc_eh.a
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libgcc_s.dll.a
@@ -504,6 +509,7 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libstdc++.a
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libstdc++.dll.a
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libstdc++.dll.a-gdb.py
+%{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libstdc++.modules.json
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libstdc++exp.a
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libstdc++fs.a
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libsupc++.a
@@ -517,6 +523,7 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %{_mandir}/man1/%{cygwin64_target}-gfortran.1*
 %{_libexecdir}/gcc/%{cygwin64_target}/%{gcc_major}/f951
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libcaf_single.a
+%{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libcaf_shmem.a
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libgfortran.a
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libgfortran.dll.a
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libgfortran.spec
@@ -525,6 +532,9 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 
 
 %changelog
+* Sat Sep 12 2026 Jon Turney <jon.turney@dronecode.org.uk> - 16.1.0-1
+- new version
+
 * Tue Oct 19 2021 Yaakov Selkowitz <yselkowi@redhat.com> - 11.2.0-2
 - Disable dynamicbase by default in DLLs
 

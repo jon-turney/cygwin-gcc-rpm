@@ -1,4 +1,4 @@
-From ec77fb7e241bf7bf8f3b4587bafd56230d533a13 Mon Sep 17 00:00:00 2001
+From 29a9b3e8a068f3c92f92c6afef6ae75f7773f15d Mon Sep 17 00:00:00 2001
 From: LIU Hao <lh_mouse@126.com>
 Date: Fri, 6 Jan 2023 23:18:15 +0800
 Subject: [PATCH 01/12] Always define `WIN32_LEAN_AND_MEAN` before <windows.h>
@@ -121,5 +121,5 @@ index 8921b7306c6..ee9397cb496 100644
  long long
  mysleep(int seconds) {
 -- 
-2.45.1
+2.51.0
 
