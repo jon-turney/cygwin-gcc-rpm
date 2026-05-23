@@ -1,5 +1,9 @@
 %global __os_install_post /usr/lib/rpm/brp-compress %{nil}
 
+# Set this to one when cygwin and cygwin-w32api-runtime packages aren't built
+# yet. Bootstrap mode builds just enough gcc to build those.
+%global bootstrap 1
+
 %global gcc_major 16
 %global gcc_minor 1
 %global gcc_micro 0
@@ -32,13 +36,17 @@ BuildRequires:  texinfo
 BuildRequires:  cygwin32-filesystem
 BuildRequires:  cygwin32-binutils
 BuildRequires:  cygwin32-w32api-headers
+%if ! %{bootstrap}
 BuildRequires:  cygwin32-w32api-runtime
 BuildRequires:  cygwin32 >= 3.0.0
+%endif
 BuildRequires:  cygwin64-filesystem
 BuildRequires:  cygwin64-binutils
 BuildRequires:  cygwin64-w32api-headers
+%if ! %{bootstrap}
 BuildRequires:  cygwin64-w32api-runtime
 BuildRequires:  cygwin64 >= 3.0.0
+%endif
 BuildRequires:  gmp-devel
 BuildRequires:  mpfr-devel
 BuildRequires:  libmpc-devel
@@ -93,16 +101,20 @@ Group:   Development/Languages
 # NB: Explicit cygwin32-filesystem dependency is REQUIRED here.
 Requires:       cygwin32-filesystem
 Requires:       cygwin32-binutils
+%if ! %{bootstrap}
 Requires:       cygwin32-default-manifest
 Requires:       cygwin32-w32api-runtime
 Requires:       cygwin32 >= 3.0.0
+%endif
 Requires:       cygwin32-cpp = %{version}-%{release}
 # We don't run the automatic dependency scripts which would
 # normally detect and provide the following DLL:
+%if ! %{bootstrap}
 Provides:       cygwin32(cygatomic-1.dll)
 Provides:       cygwin32(cyggcc_s-1.dll)
 Provides:       cygwin32(cyggomp-1.dll)
 Provides:       cygwin32(cygquadmath-0.dll)
+%endif
 # prevent update errors
 Obsoletes:      %{name}-java < %{version}-%{release}
 Obsoletes:      cygwin32-gcc-java < %{version}-%{release}
@@ -130,7 +142,9 @@ Group: Development/Languages
 Requires: cygwin32-gcc = %{version}-%{release}
 # We don't run the automatic dependency scripts which would
 # normally detect and provide the following DLL:
+%if ! %{bootstrap}
 Provides:  cygwin32(cygstdc++-6.dll)
+%endif
 
 %description -n cygwin32-gcc-c++
 Cygwin cross-compiler for C++.
@@ -142,7 +156,9 @@ Group: Development/Languages
 Requires:  cygwin32-gcc = %{version}-%{release}
 # We don't run the automatic dependency scripts which would
 # normally detect and provide the following DLL:
+%if ! %{bootstrap}
 Provides:  cygwin32(cyggfortran-5.dll)
+%endif
 
 %description -n cygwin32-gcc-gfortran
 Cygwin cross-compiler for FORTRAN.
@@ -154,16 +170,20 @@ Group:   Development/Languages
 # NB: Explicit cygwin-filesystem dependency is REQUIRED here.
 Requires:       cygwin64-filesystem
 Requires:       cygwin64-binutils
+%if ! %{bootstrap}
 Requires:       cygwin64-default-manifest
 Requires:       cygwin64-w32api-runtime
 Requires:       cygwin64 >= 3.0.0
+%endif
 Requires:       cygwin64-cpp = %{version}-%{release}
 # We don't run the automatic dependency scripts which would
 # normally detect and provide the following DLLs:
+%if ! %{bootstrap}
 Provides:       cygwin64(cygatomic-1.dll)
 Provides:       cygwin64(cyggcc_s-seh-1.dll)
 Provides:       cygwin64(cyggomp-1.dll)
 Provides:       cygwin64(cygquadmath-0.dll)
+%endif
 # prevent update errors
 Obsoletes:      cygwin64-gcc-gnat < %{version}-%{release}
 Obsoletes:      cygwin64-gcc-objc < %{version}-%{release}
@@ -188,7 +208,9 @@ Group: Development/Languages
 Requires: cygwin64-gcc = %{version}-%{release}
 # We don't run the automatic dependency scripts which would
 # normally detect and provide the following DLL:
+%if ! %{bootstrap}
 Provides:  cygwin64(cygstdc++-6.dll)
+%endif
 
 %description -n cygwin64-gcc-c++
 Cygwin x86_64 cross-compiler for C++.
@@ -200,7 +222,9 @@ Group: Development/Languages
 Requires:  cygwin64-gcc = %{version}-%{release}
 # We don't run the automatic dependency scripts which would
 # normally detect and provide the following DLL:
+%if ! %{bootstrap}
 Provides:  cygwin64(cyggfortran-5.dll)
+%endif
 
 %description -n cygwin64-gcc-gfortran
 Cygwin x86_64 cross-compiler for FORTRAN.
@@ -249,7 +273,11 @@ CC="%{__cc} ${RPM_OPT_FLAGS}" \
 %endif
   --enable-languages="c,c++,fortran,lto" \
   --disable-libcc1 \
+%if %{bootstrap}
+  --disable-lto \
+%else
   --enable-lto \
+%endif
   --disable-symvers \
   --enable-libatomic \
   --enable-libgomp \
@@ -290,7 +318,11 @@ CC="%{__cc} ${RPM_OPT_FLAGS}" \
 %endif
   --enable-languages="c,c++,fortran,lto" \
   --disable-libcc1 \
+%if %{bootstrap}
+  --disable-lto \
+%else
   --enable-lto \
+%endif
   --disable-symvers \
   --enable-libatomic \
   --enable-libgomp \
@@ -303,11 +335,20 @@ CC="%{__cc} ${RPM_OPT_FLAGS}" \
 
 popd
 
+# if bootstrapping, only build gcc core
+%if %{bootstrap}
+%cygwin_make %{?_smp_mflags} all-gcc
+%else
 %cygwin_make %{?_smp_mflags} all
+%endif
 
 
 %install
+%if %{bootstrap}
+%cygwin_make DESTDIR=$RPM_BUILD_ROOT install-gcc
+%else
 %cygwin_make_install DESTDIR=$RPM_BUILD_ROOT
+%endif
 
 # These files conflict with existing installed files.
 rm -rf $RPM_BUILD_ROOT%{_infodir}
@@ -326,6 +367,7 @@ rm -fr $RPM_BUILD_ROOT%{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/include
 
 # libtool installs DLL files of runtime libraries into $(libdir)/../bin,
 # but we need them in cygwin*_bindir.
+%if ! %{bootstrap}
 mkdir -p $RPM_BUILD_ROOT%{cygwin32_bindir}
 mv $RPM_BUILD_ROOT%{_prefix}/lib/gcc/%{cygwin32_target}/*.dll \
   $RPM_BUILD_ROOT%{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/*.dll \
@@ -334,6 +376,7 @@ mkdir -p $RPM_BUILD_ROOT%{cygwin64_bindir}
 mv $RPM_BUILD_ROOT%{_prefix}/lib/gcc/%{cygwin64_target}/*.dll \
   $RPM_BUILD_ROOT%{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/*.dll \
   $RPM_BUILD_ROOT%{cygwin64_bindir}
+%endif
 
 # Don't want the *.la files.
 find $RPM_BUILD_ROOT -name '*.la' -delete
@@ -341,8 +384,10 @@ find $RPM_BUILD_ROOT -name '*.la' -delete
 
 
 %find_lang cygwin-gcc
+%if ! %{bootstrap}
 %find_lang cygwin-cpplib
 cat cygwin-cpplib.lang >> cygwin-gcc.lang
+%endif
 
 
 %files common -f cygwin-gcc.lang
@@ -366,6 +411,7 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %{_mandir}/man1/%{cygwin32_target}-lto-dump.1*
 %dir %{_prefix}/lib/gcc/%{cygwin32_target}
 %dir %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}
+%if ! %{bootstrap}
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/crtbegin.o
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/crtbeginS.o
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/crtend.o
@@ -381,21 +427,26 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libgomp.spec
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libquadmath.a
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libquadmath.dll.a
+%endif
 %dir %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/include
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/include/*.h
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/install-tools/
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/plugin/
 %{_libexecdir}/gcc/%{cygwin32_target}/%{gcc_major}/install-tools/
+%if ! %{bootstrap}
 %{_libexecdir}/gcc/%{cygwin32_target}/%{gcc_major}/liblto_plugin.so
+%endif
 %{_libexecdir}/gcc/%{cygwin32_target}/%{gcc_major}/lto1
 %{_libexecdir}/gcc/%{cygwin32_target}/%{gcc_major}/lto-wrapper
 %{_libexecdir}/gcc/%{cygwin32_target}/%{gcc_major}/plugin/
+%if ! %{bootstrap}
 %dir %{_datadir}/gcc-%{gcc_major}
 %dir %{_datadir}/gcc-%{gcc_major}/%{cygwin32_target}
 %{cygwin32_bindir}/cygatomic-1.dll
 %{cygwin32_bindir}/cyggcc_s-1.dll
 %{cygwin32_bindir}/cyggomp-1.dll
 %{cygwin32_bindir}/cygquadmath-0.dll
+%endif
 
 
 %files -n cygwin32-cpp
@@ -413,6 +464,7 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %{_mandir}/man1/%{cygwin32_target}-g++.1*
 %{_libexecdir}/gcc/%{cygwin32_target}/%{gcc_major}/cc1plus
 %{_libexecdir}/gcc/%{cygwin32_target}/%{gcc_major}/collect2
+%if ! %{bootstrap}
 %{_libexecdir}/gcc/%{cygwin32_target}/%{gcc_major}/g++-mapper-server
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/include/c++/
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libstdc++.a
@@ -424,18 +476,21 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %dir %{_datadir}/gcc-%{gcc_major}/%{cygwin32_target}/python
 %{_datadir}/gcc-%{gcc_major}/%{cygwin32_target}/python/libstdcxx/
 %{cygwin32_bindir}/cygstdc++-6.dll
+%endif
 
 
 %files -n cygwin32-gcc-gfortran
 %{_bindir}/%{cygwin32_target}-gfortran
 %{_mandir}/man1/%{cygwin32_target}-gfortran.1*
 %{_libexecdir}/gcc/%{cygwin32_target}/%{gcc_major}/f951
+%if ! %{bootstrap}
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libcaf_single.a
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libgfortran.a
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libgfortran.dll.a
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libgfortran.spec
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/finclude/
 %{cygwin32_bindir}/cyggfortran-5.dll
+%endif
 
 
 %files -n cygwin64-gcc
@@ -455,6 +510,7 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %{_mandir}/man1/%{cygwin64_target}-lto-dump.1*
 %dir %{_prefix}/lib/gcc/%{cygwin64_target}
 %dir %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}
+%if ! %{bootstrap}
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/crtbegin.o
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/crtbeginS.o
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/crtend.o
@@ -470,21 +526,26 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libgomp.spec
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libquadmath.a
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libquadmath.dll.a
+%endif
 %dir %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/include
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/include/*.h
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/install-tools/
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/plugin/
 %{_libexecdir}/gcc/%{cygwin64_target}/%{gcc_major}/install-tools/
+%if ! %{bootstrap}
 %{_libexecdir}/gcc/%{cygwin64_target}/%{gcc_major}/liblto_plugin.so
+%endif
 %{_libexecdir}/gcc/%{cygwin64_target}/%{gcc_major}/lto1
 %{_libexecdir}/gcc/%{cygwin64_target}/%{gcc_major}/lto-wrapper
 %{_libexecdir}/gcc/%{cygwin64_target}/%{gcc_major}/plugin/
+%if ! %{bootstrap}
 %dir %{_datadir}/gcc-%{gcc_major}
 %dir %{_datadir}/gcc-%{gcc_major}/%{cygwin64_target}
 %{cygwin64_bindir}/cygatomic-1.dll
 %{cygwin64_bindir}/cyggcc_s-seh-1.dll
 %{cygwin64_bindir}/cyggomp-1.dll
 %{cygwin64_bindir}/cygquadmath-0.dll
+%endif
 
 
 %files -n cygwin64-cpp
@@ -502,6 +563,7 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %{_mandir}/man1/%{cygwin64_target}-g++.1*
 %{_libexecdir}/gcc/%{cygwin64_target}/%{gcc_major}/cc1plus
 %{_libexecdir}/gcc/%{cygwin64_target}/%{gcc_major}/collect2
+%if ! %{bootstrap}
 %{_libexecdir}/gcc/%{cygwin64_target}/%{gcc_major}/g++-mapper-server
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/include/c++/
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libstdc++.a
@@ -513,18 +575,21 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %dir %{_datadir}/gcc-%{gcc_major}/%{cygwin64_target}/python
 %{_datadir}/gcc-%{gcc_major}/%{cygwin64_target}/python/libstdcxx/
 %{cygwin64_bindir}/cygstdc++-6.dll
+%endif
 
 
 %files -n cygwin64-gcc-gfortran
 %{_bindir}/%{cygwin64_target}-gfortran
 %{_mandir}/man1/%{cygwin64_target}-gfortran.1*
 %{_libexecdir}/gcc/%{cygwin64_target}/%{gcc_major}/f951
+%if ! %{bootstrap}
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libcaf_single.a
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libgfortran.a
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libgfortran.dll.a
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libgfortran.spec
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/finclude/
 %{cygwin64_bindir}/cyggfortran-5.dll
+%endif
 
 
 %changelog
