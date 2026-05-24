@@ -9,7 +9,7 @@
 %global gcc_micro 0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %%{release}, append them after %%{gcc_release} on Release: line.
-%global gcc_release 1
+%global gcc_release 3
 
 %global _performance_build 1
 # Hardening slows the compiler way too much.
@@ -69,6 +69,7 @@ BuildRequires:  flex
 BuildRequires:  gettext
 
 Source0:        https://gcc.gnu.org/pub/gcc/releases/gcc-%{version}/gcc-%{version}.tar.xz
+Source1:        fake-cygwin-includes.patch
 
 # Cygwin patches
 Patch1:		0001-Always-define-WIN32_LEAN_AND_MEAN-before-windows.h.patch
@@ -488,6 +489,16 @@ mv $RPM_BUILD_ROOT%{_prefix}/lib/gcc/%{cygwin_aarch64_target}/*.dll \
 # Don't want the *.la files.
 find $RPM_BUILD_ROOT -name '*.la' -delete
 
+%if %{bootstrap}
+# Fakery necessary to compile w32api-runtime with a bootstrap cygwin-gcc. It
+# doesn't pull in the cygwin package, which has the real includes, so just fake
+# the minimum we need. (It might be better just to use a copy of them here?).
+for d in %{cygwin32_includedir} %{cygwin64_includedir} %{cygwin_aarch64_includedir}
+do
+    mkdir -p $RPM_BUILD_ROOT${d}
+    patch -d $RPM_BUILD_ROOT${d} -p1 <%{SOURCE1}
+done
+%endif
 
 
 %find_lang cygwin-gcc
@@ -534,6 +545,8 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libgomp.spec
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libquadmath.a
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libquadmath.dll.a
+%else
+%{cygwin32_includedir}/*
 %endif
 %dir %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/include
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/include/*.h
@@ -633,6 +646,8 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libgomp.spec
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libquadmath.a
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libquadmath.dll.a
+%else
+%{cygwin64_includedir}/*
 %endif
 %dir %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/include
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/include/*.h
@@ -733,6 +748,8 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/libgomp.spec
 %{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/libquadmath.a
 %{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/libquadmath.dll.a
+%else
+%{cygwin_aarch64_includedir}/*
 %endif
 %dir %{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/include
 %{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/include/*.h

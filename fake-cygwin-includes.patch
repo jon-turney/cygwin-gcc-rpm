@@ -1,0 +1,62 @@
+diff -Nau include.old/ctype.h include/ctype.h
+--- include.old/ctype.h	1970-01-01 01:00:00.000000000 +0100
++++ include/ctype.h	2026-05-25 09:35:35.235177773 +0100
+@@ -0,0 +1 @@
++
+diff -Nau include.old/errno.h include/errno.h
+--- include.old/errno.h	1970-01-01 01:00:00.000000000 +0100
++++ include/errno.h	2026-05-24 21:25:35.785662648 +0100
+@@ -0,0 +1,2 @@
++extern int errno;
++#define EINVAL 22
+diff -Nau include.old/limits.h include/limits.h
+--- include.old/limits.h	1970-01-01 01:00:00.000000000 +0100
++++ include/limits.h	2026-05-25 09:35:45.141096884 +0100
+@@ -0,0 +1 @@
++
+diff -Nau include.old/malloc.h include/malloc.h
+--- include.old/malloc.h	1970-01-01 01:00:00.000000000 +0100
++++ include/malloc.h	2026-05-24 22:41:05.051220507 +0100
+@@ -0,0 +1,3 @@
++extern void* calloc(size_t __num, size_t __size);
++extern void free(void *__ptr);
++extern void *malloc(size_t __size);
+diff -Nau include.old/new include/new
+--- include.old/new	1970-01-01 01:00:00.000000000 +0100
++++ include/new	2026-05-25 20:23:47.820481432 +0100
+@@ -0,0 +1,9 @@
++namespace std
++{
++  typedef size_t size_t;
++  struct nothrow_t
++  {
++  };
++}
++
++void* operator new(std::size_t);
+diff -Nau include.old/stdio.h include/stdio.h
+--- include.old/stdio.h	1970-01-01 01:00:00.000000000 +0100
++++ include/stdio.h	2026-05-24 22:21:00.631454529 +0100
+@@ -0,0 +1 @@
++extern int sprintf(char *str, const char *format, ...);
+diff -Nau include.old/stdlib.h include/stdlib.h
+--- include.old/stdlib.h	1970-01-01 01:00:00.000000000 +0100
++++ include/stdlib.h	2026-05-24 22:40:53.361019191 +0100
+@@ -0,0 +1,4 @@
++#include <stddef.h>
++#include <malloc.h>
++extern unsigned long int strtoul(const char *nptr, char **endptr, int base);
++extern size_t wcstombs(char *s, const wchar_t *pwcs, size_t n);
+diff -Nau include.old/string.h include/string.h
+--- include.old/string.h	1970-01-01 01:00:00.000000000 +0100
++++ include/string.h	2026-05-24 22:31:01.401120424 +0100
+@@ -0,0 +1,9 @@
++extern int memcmp(const void *ptr1, const void *ptr2, size_t num);
++extern void *memset(void *str, int c, size_t n);
++extern char *strcat(char *destination, const char *source);
++extern char *strchr(const char *str, int character);
++extern int strcmp(const const char *str1, const const char *str2);
++extern char *strcpy(char *destination, const char *source);
++extern size_t strlen(const char *str);
++extern int strncmp(const char *str1, const char *str2, size_t n);
++extern char *strncpy(char *dest, const char *src, size_t n);
