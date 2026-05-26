@@ -119,6 +119,11 @@ Patch536:	0536-Fix-aarch64-unwinding-with-debugger-attached-3.patch
 Patch537:	0537-Add-MS-variadic-ABI-support-to-aarch64-pc-cygwin-tar.patch
 Patch538:	0538-Disable-float80.patch
 
+# additional patches
+Patch600:       0001-libgcc-select-Win32-enable-execute-stack-on-Win32-aa.patch
+Patch601:       0002-libgcc-Hacks-for-compiler-bootstrapping.patch
+Patch602:       0003-Workaound-unable-to-emulate-TF-error.patch
+
 # Fedora-specific patches
 Patch1001:      1001-textdomain.patch
 Patch1002:      1002-cygwin-ld-flags.patch

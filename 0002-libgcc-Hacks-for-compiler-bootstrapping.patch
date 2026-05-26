@@ -1,0 +1,28 @@
+From 4a076a843ff973987820083657367219bfdb77ff Mon Sep 17 00:00:00 2001
+From: Jon Turney <jon.turney@dronecode.org.uk>
+Date: Fri, 29 May 2026 09:36:25 +0100
+Subject: [PATCH 2/3] libgcc: Hacks for compiler bootstrapping
+
+In enable-execute-stack-mingw32.c, avoid including the probably
+non-existent <stdlib.h> in inhibit_libc mode.
+---
+ libgcc/config/i386/enable-execute-stack-mingw32.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/libgcc/config/i386/enable-execute-stack-mingw32.c b/libgcc/config/i386/enable-execute-stack-mingw32.c
+index 92f75defdb29..ba9082575cbb 100644
+--- a/libgcc/config/i386/enable-execute-stack-mingw32.c
++++ b/libgcc/config/i386/enable-execute-stack-mingw32.c
+@@ -23,7 +23,9 @@
+    <http://www.gnu.org/licenses/>.  */
+ 
+ #define WIN32_LEAN_AND_MEAN
++#if !defined(inhibit_libc)
+ #include <stdlib.h>
++#endif
+ #include <windows.h>
+ 
+ extern void __enable_execute_stack (void *);
+-- 
+2.51.0
+

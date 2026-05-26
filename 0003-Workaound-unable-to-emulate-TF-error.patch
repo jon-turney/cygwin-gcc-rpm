@@ -1,0 +1,26 @@
+From b46e302f8806b3c00896400a1a216096c8ff6059 Mon Sep 17 00:00:00 2001
+From: Jon Turney <jon.turney@dronecode.org.uk>
+Date: Wed, 27 May 2026 17:15:44 +0100
+Subject: [PATCH 3/3] Workaound "unable to emulate TF" error
+
+Disable softfp to avoid "unabled to emulate TF" errors.
+---
+ libgcc/config.host | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/libgcc/config.host b/libgcc/config.host
+index ac022ffd2ae6..19cfee15a06d 100644
+--- a/libgcc/config.host
++++ b/libgcc/config.host
+@@ -876,7 +876,7 @@ aarch64-*-cygwin*)
+ 	tmake_file="${tmake_file} i386/t-slibgcc-cygming i386/t-cygming i386/t-cygwin"
+ 	tmake_file="${tmake_file} ${cpu_type}/t-aarch64"
+ 	tmake_file="${tmake_file} ${cpu_type}/t-lse"
+-	tmake_file="${tmake_file} ${cpu_type}/t-softfp t-softfp t-crtfm"
++	tmake_file="${tmake_file} t-crtfm"
+ 	extra_parts="$extra_parts crtbegin.o crtbeginS.o crtend.o crtfastmath.o"
+ 	if test x$enable_vtable_verify = xyes; then
+ 		extra_parts="$extra_parts vtv_start.o vtv_end.o vtv_start_preinit.o vtv_end_preinit.o"
+-- 
+2.51.0
+
