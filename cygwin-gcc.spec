@@ -359,14 +359,29 @@ CONFIGURE_OPTS="\
   --enable-linker-build-id \
   --disable-multilib \
   --with-system-zlib \
-  --enable-shared --enable-shared-libgcc --enable-static \
+%if !%{bootstrap}
+  --enable-shared \
+  --enable-shared-libgcc \
+%else
+  --disable-shared \
+  --disable-shared-libgcc \
+%endif
+  --enable-static \
   --without-included-gettext \
   --disable-win32-registry \
+%if !%{bootstrap}
   --enable-threads=posix \
+%else
+  --disable-threads \
+%endif
   --enable-version-specific-runtime-libs \
   --with-gcc-major-version-only \
-  --enable-shared --enable-shared-libgcc --enable-__cxa_atexit \
+  --enable-__cxa_atexit \
+%if !%{bootstrap}
   --with-dwarf2 \
+%else
+  --without-dwarf2 \
+%endif
 %if 0%{?fedora} || 0%{?rhel} >= 8
   --enable-graphite \
 %endif
@@ -374,6 +389,7 @@ CONFIGURE_OPTS="\
   --disable-libcc1 \
 %if %{bootstrap}
   --disable-lto \
+  --disable-gcov \
 %else
   --enable-lto \
 %endif
@@ -518,9 +534,11 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %{_bindir}/%{cygwin32_target}-gcc-ar
 %{_bindir}/%{cygwin32_target}-gcc-nm
 %{_bindir}/%{cygwin32_target}-gcc-ranlib
+%if ! %{bootstrap}
 %{_bindir}/%{cygwin32_target}-gcov
 %{_bindir}/%{cygwin32_target}-gcov-dump
 %{_bindir}/%{cygwin32_target}-gcov-tool
+%endif
 %{_bindir}/%{cygwin32_target}-lto-dump
 %{_mandir}/man1/%{cygwin32_target}-gcc.1*
 %{_mandir}/man1/%{cygwin32_target}-gcov.1*
@@ -621,9 +639,11 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %{_bindir}/%{cygwin64_target}-gcc-ar
 %{_bindir}/%{cygwin64_target}-gcc-nm
 %{_bindir}/%{cygwin64_target}-gcc-ranlib
+%if ! %{bootstrap}
 %{_bindir}/%{cygwin64_target}-gcov
 %{_bindir}/%{cygwin64_target}-gcov-dump
 %{_bindir}/%{cygwin64_target}-gcov-tool
+%endif
 %{_bindir}/%{cygwin64_target}-lto-dump
 %{_mandir}/man1/%{cygwin64_target}-gcc.1*
 %{_mandir}/man1/%{cygwin64_target}-gcov.1*
@@ -725,9 +745,11 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %{_bindir}/%{cygwin_aarch64_target}-gcc-ar
 %{_bindir}/%{cygwin_aarch64_target}-gcc-nm
 %{_bindir}/%{cygwin_aarch64_target}-gcc-ranlib
+%if ! %{bootstrap}
 %{_bindir}/%{cygwin_aarch64_target}-gcov
 %{_bindir}/%{cygwin_aarch64_target}-gcov-dump
 %{_bindir}/%{cygwin_aarch64_target}-gcov-tool
+%endif
 %{_bindir}/%{cygwin_aarch64_target}-lto-dump
 %{_mandir}/man1/%{cygwin_aarch64_target}-gcc.1*
 %{_mandir}/man1/%{cygwin_aarch64_target}-gcov.1*
