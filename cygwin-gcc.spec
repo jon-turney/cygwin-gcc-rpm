@@ -435,9 +435,9 @@ popd
 %endif
 
 
-# if bootstrapping, only build gcc core
+# if bootstrapping, only build gcc core and libgcc
 %if %{bootstrap}
-%cygwin_make %{?_smp_mflags} all-gcc
+%cygwin_make %{?_smp_mflags} all-gcc all-target-libgcc
 %else
 %cygwin_make %{?_smp_mflags} all
 %endif
@@ -445,7 +445,7 @@ popd
 
 %install
 %if %{bootstrap}
-%cygwin_make DESTDIR=$RPM_BUILD_ROOT install-gcc
+%cygwin_make DESTDIR=$RPM_BUILD_ROOT install-gcc install-target-libgcc
 %else
 %cygwin_make_install DESTDIR=$RPM_BUILD_ROOT
 %endif
@@ -529,14 +529,16 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %{_mandir}/man1/%{cygwin32_target}-lto-dump.1*
 %dir %{_prefix}/lib/gcc/%{cygwin32_target}
 %dir %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}
-%if ! %{bootstrap}
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/crtbegin.o
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/crtbeginS.o
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/crtend.o
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/crtfastmath.o
+%if ! %{bootstrap}
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libatomic.a
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libatomic.dll.a
+%endif
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libgcc.a
+%if ! %{bootstrap}
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libgcc_eh.a
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libgcc_s.dll.a
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libgcov.a
@@ -630,14 +632,16 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %{_mandir}/man1/%{cygwin64_target}-lto-dump.1*
 %dir %{_prefix}/lib/gcc/%{cygwin64_target}
 %dir %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}
-%if ! %{bootstrap}
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/crtbegin.o
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/crtbeginS.o
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/crtend.o
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/crtfastmath.o
+%if ! %{bootstrap}
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libatomic.a
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libatomic.dll.a
+%endif
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libgcc.a
+%if ! %{bootstrap}
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libgcc_eh.a
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libgcc_s.dll.a
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libgcov.a
@@ -732,14 +736,16 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %{_mandir}/man1/%{cygwin_aarch64_target}-lto-dump.1*
 %dir %{_prefix}/lib/gcc/%{cygwin_aarch64_target}
 %dir %{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}
-%if ! %{bootstrap}
 %{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/crtbegin.o
 %{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/crtbeginS.o
 %{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/crtend.o
 %{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/crtfastmath.o
+%if ! %{bootstrap}
 %{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/libatomic.a
 %{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/libatomic.dll.a
+%endif
 %{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/libgcc.a
+%if ! %{bootstrap}
 %{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/libgcc_eh.a
 %{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/libgcc_s.dll.a
 %{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/libgcov.a
