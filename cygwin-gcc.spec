@@ -9,7 +9,7 @@
 %global gcc_micro 0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %%{release}, append them after %%{gcc_release} on Release: line.
-%global gcc_release 3
+%global gcc_release 5
 
 %global _performance_build 1
 # Hardening slows the compiler way too much.
@@ -463,7 +463,8 @@ popd
 
 # if bootstrapping, only build gcc core and libgcc
 %if %{bootstrap}
-%cygwin_make %{?_smp_mflags} all-gcc all-target-libgcc
+%cygwin_make %{?_smp_mflags} all-gcc
+%cygwin_make all-target-libgcc CFLAGS_FOR_TARGET="-Dinhibit_libc"
 %else
 %cygwin_make %{?_smp_mflags} all
 %endif
