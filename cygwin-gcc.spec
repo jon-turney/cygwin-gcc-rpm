@@ -20,6 +20,9 @@
 %undefine _annotated_build
 %endif
 
+%dnl undefine cygwin_build_32bit
+%undefine cygwin_build_64bit
+%dnl undefine cygwin_build_aarch64
 
 Name:           cygwin-gcc
 Version:        %{gcc_major}.%{gcc_minor}.%{gcc_micro}
@@ -485,8 +488,10 @@ rm -f $RPM_BUILD_ROOT%{_mandir}/man7/*
 mkdir -p $RPM_BUILD_ROOT/lib
 ln -sf ..%{_prefix}/bin/%{cygwin32_target}-cpp \
   $RPM_BUILD_ROOT/lib/%{cygwin32_target}-cpp
+%if 0%{?cygwin_build_64bit} == 1
 ln -sf ..%{_prefix}/bin/%{cygwin64_target}-cpp \
   $RPM_BUILD_ROOT/lib/%{cygwin64_target}-cpp
+%endif
 ln -sf ..%{_prefix}/bin/%{cygwin_aarch64_target}-cpp \
   $RPM_BUILD_ROOT/lib/%{cygwin_aarch64_target}-cpp
 
@@ -499,14 +504,18 @@ rm -fr $RPM_BUILD_ROOT%{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/i
 # libtool installs DLL files of runtime libraries into $(libdir)/../bin,
 # but we need them in cygwin*_bindir.
 %if ! %{bootstrap}
+%if 0%{?cygwin_build_32bit} == 1
 mkdir -p $RPM_BUILD_ROOT%{cygwin32_bindir}
 mv $RPM_BUILD_ROOT%{_prefix}/lib/gcc/%{cygwin32_target}/*.dll \
   $RPM_BUILD_ROOT%{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/*.dll \
   $RPM_BUILD_ROOT%{cygwin32_bindir}
+%endif
+%if 0%{?cygwin_build_64bit} == 1
 mkdir -p $RPM_BUILD_ROOT%{cygwin64_bindir}
 mv $RPM_BUILD_ROOT%{_prefix}/lib/gcc/%{cygwin64_target}/*.dll \
   $RPM_BUILD_ROOT%{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/*.dll \
   $RPM_BUILD_ROOT%{cygwin64_bindir}
+%endif
 mkdir -p $RPM_BUILD_ROOT%{cygwin_aarch64_bindir}
 mv $RPM_BUILD_ROOT%{_prefix}/lib/gcc/%{cygwin_aarch64_target}/*.dll \
   $RPM_BUILD_ROOT%{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/*.dll \
@@ -520,7 +529,14 @@ find $RPM_BUILD_ROOT -name '*.la' -delete
 # Fakery necessary to compile w32api-runtime with a bootstrap cygwin-gcc. It
 # doesn't pull in the cygwin package, which has the real includes, so just fake
 # the minimum we need. (It might be better just to use a copy of them here?).
-for d in %{cygwin32_includedir} %{cygwin64_includedir} %{cygwin_aarch64_includedir}
+for d in \
+%if 0%{?cygwin_build_32bit} == 1
+  %{cygwin32_includedir} \
+%endif
+%if 0%{?cygwin_build_64bit} == 1
+  %{cygwin64_includedir} \
+%endif
+  %{cygwin_aarch64_includedir}
 do
     mkdir -p $RPM_BUILD_ROOT${d}
     patch -d $RPM_BUILD_ROOT${d} -p1 <%{SOURCE1}
@@ -539,6 +555,7 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %doc gcc/README* gcc/COPYING*
 
 
+%if 0%{?cygwin_build_32bit} == 1
 %files -n cygwin32-gcc
 %{_bindir}/%{cygwin32_target}-gcc
 %{_bindir}/%{cygwin32_target}-gcc-%{gcc_major}
@@ -642,8 +659,10 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/finclude/
 %{cygwin32_bindir}/cyggfortran-5.dll
 %endif
+%endif
 
 
+%if 0%{?cygwin_build_64bit} == 1
 %files -n cygwin64-gcc
 %{_bindir}/%{cygwin64_target}-gcc
 %{_bindir}/%{cygwin64_target}-gcc-%{gcc_major}
@@ -746,6 +765,7 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libgfortran.spec
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/finclude/
 %{cygwin64_bindir}/cyggfortran-5.dll
+%endif
 %endif
 
 
