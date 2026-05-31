@@ -582,6 +582,7 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %if ! %{bootstrap}
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libatomic.a
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libatomic.dll.a
+%{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libatomic_asneeded.a
 %endif
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libgcc.a
 %if ! %{bootstrap}
@@ -638,6 +639,7 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libstdc++.a
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libstdc++.dll.a
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libstdc++.dll.a-gdb.py
+%{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libstdc++.modules.json
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libstdc++exp.a
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libstdc++fs.a
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libsupc++.a
@@ -653,6 +655,7 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %{_libexecdir}/gcc/%{cygwin32_target}/%{gcc_major}/f951
 %if ! %{bootstrap}
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libcaf_single.a
+%{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libcaf_shmem.a
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libgfortran.a
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libgfortran.dll.a
 %{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libgfortran.spec
@@ -689,6 +692,7 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %if ! %{bootstrap}
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libatomic.a
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libatomic.dll.a
+%{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libatomic_asneeded.a
 %endif
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libgcc.a
 %if ! %{bootstrap}
@@ -745,6 +749,7 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libstdc++.a
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libstdc++.dll.a
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libstdc++.dll.a-gdb.py
+%{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libstdc++.modules.json
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libstdc++exp.a
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libstdc++fs.a
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libsupc++.a
@@ -760,6 +765,7 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %{_libexecdir}/gcc/%{cygwin64_target}/%{gcc_major}/f951
 %if ! %{bootstrap}
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libcaf_single.a
+%{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libcaf_shmem.a
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libgfortran.a
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libgfortran.dll.a
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libgfortran.spec
@@ -796,6 +802,7 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %if ! %{bootstrap}
 %{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/libatomic.a
 %{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/libatomic.dll.a
+%{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/libatomic_asneeded.a
 %endif
 %{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/libgcc.a
 %if ! %{bootstrap}
@@ -860,6 +867,7 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/libstdc++.a
 %{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/libstdc++.dll.a
 %{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/libstdc++.dll.a-gdb.py
+%{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/libstdc++.modules.json
 %{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/libstdc++exp.a
 %{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/libstdc++fs.a
 %{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/libsupc++.a
@@ -875,6 +883,7 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %{_libexecdir}/gcc/%{cygwin_aarch64_target}/%{gcc_major}/f951
 %if ! %{bootstrap}
 %{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/libcaf_single.a
+%{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/libcaf_shmem.a
 %{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/libgfortran.a
 %{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/libgfortran.dll.a
 %{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/libgfortran.spec
