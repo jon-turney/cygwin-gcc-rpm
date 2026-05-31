@@ -803,7 +803,9 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/libgcc_s.dll.a
 %{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/libgcov.a
 %{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/libgomp.a
+%if 0
 %{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/libgomp.dll.a
+%endif
 %{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/libgomp.spec
 %if 0
 %{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/libquadmath.a
@@ -828,7 +830,9 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %dir %{_datadir}/gcc-%{gcc_major}/%{cygwin_aarch64_target}
 %{cygwin_aarch64_bindir}/cygatomic-1.dll
 %{cygwin_aarch64_bindir}/cyggcc_s-seh-1.dll
+%if 0
 %{cygwin_aarch64_bindir}/cyggomp-1.dll
+%endif
 %if 0
 %{cygwin_aarch64_bindir}/cygquadmath-0.dll
 %endif
