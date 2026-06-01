@@ -21,7 +21,7 @@
 %endif
 
 %dnl undefine cygwin_build_32bit
-%undefine cygwin_build_64bit
+%dnl undefine cygwin_build_64bit
 %dnl undefine cygwin_build_aarch64
 
 Name:           cygwin-gcc
