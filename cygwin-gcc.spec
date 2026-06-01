@@ -765,7 +765,7 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 %{_libexecdir}/gcc/%{cygwin64_target}/%{gcc_major}/f951
 %if ! %{bootstrap}
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libcaf_single.a
-%{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/libcaf_shmem.a
+%{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libcaf_shmem.a
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libgfortran.a
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libgfortran.dll.a
 %{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/libgfortran.spec
