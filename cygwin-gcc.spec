@@ -255,7 +255,7 @@ CC="%{__cc} ${RPM_OPT_FLAGS}" \
   --enable-libstdcxx-filesystem-ts \
   --with-default-libstdcxx-abi=gcc4-compatible \
   --with-python-dir=/share/gcc-%{gcc_major}/%{cygwin32_target}/python \
-  --with-bugurl=https://copr.fedorainfracloud.org/coprs/yselkowitz/cygwin/
+  --with-bugurl=https://cygwin.com
 popd
 
 mkdir -p build_64bit
@@ -296,7 +296,7 @@ CC="%{__cc} ${RPM_OPT_FLAGS}" \
   --enable-libstdcxx-filesystem-ts \
   --with-default-libstdcxx-abi=gcc4-compatible \
   --with-python-dir=/share/gcc-%{gcc_major}/%{cygwin64_target}/python \
-  --with-bugurl=https://copr.fedorainfracloud.org/coprs/yselkowitz/cygwin/
+  --with-bugurl=https://cygwin.com
 
 popd
 
