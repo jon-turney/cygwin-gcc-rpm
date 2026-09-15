@@ -2,14 +2,14 @@
 
 # Set this to 1 when cygwin and cygwin-w32api-runtime packages aren't built
 # yet. Bootstrap mode builds just enough gcc to build those.
-%global bootstrap 1
+%global bootstrap 0
 
 %global gcc_major 16
 %global gcc_minor 1
 %global gcc_micro 0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %%{release}, append them after %%{gcc_release} on Release: line.
-%global gcc_release 2
+%global gcc_release 3
 
 %global _performance_build 1
 # Hardening slows the compiler way too much.
