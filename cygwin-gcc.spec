@@ -385,6 +385,7 @@ CONFIGURE_OPTS="\
   --with-gnu-as --with-gnu-ld --verbose \
   --enable-linker-build-id \
   --disable-multilib \
+  --disable-werror \
   --with-system-zlib \
 %if !%{bootstrap}
   --enable-shared \
@@ -420,6 +421,8 @@ CONFIGURE_OPTS="\
   --enable-libatomic \
   --enable-libgomp \
   --disable-libssp \
+  --enable-libquadmath \
+  --enable-libquadmath-support \
   --enable-libstdcxx-filesystem-ts \
   --with-bugurl=https://cygwin.com
 "
@@ -435,8 +438,6 @@ CC="%{__cc} ${RPM_OPT_FLAGS}" \
   --with-arch=i686 --with-tune=generic \
   --with-sysroot=%{cygwin32_sysroot} \
   --disable-sjlj-exceptions \
-  --enable-libquadmath \
-  --enable-libquadmath-support \
   --with-default-libstdcxx-abi=gcc4-compatible \
   --with-python-dir=/share/gcc-%{gcc_major}/%{cygwin32_target}/python
 
@@ -453,8 +454,6 @@ CC="%{__cc} ${RPM_OPT_FLAGS}" \
   --target=%{cygwin64_target} \
   --with-tune=generic \
   --with-sysroot=%{cygwin64_sysroot} \
-  --enable-libquadmath \
-  --enable-libquadmath-support \
   --with-default-libstdcxx-abi=gcc4-compatible \
   --with-python-dir=/share/gcc-%{gcc_major}/%{cygwin64_target}/python
 
@@ -471,8 +470,6 @@ CC="%{__cc} ${RPM_OPT_FLAGS}" \
   --target=%{cygwin_aarch64_target} \
   --with-arch=armv8.1-a -with-tune=cortex-x1 \
   --with-sysroot=%{cygwin_aarch64_sysroot} \
-  --disable-libquadmath \
-  --disable-libquadmath-support \
   --with-python-dir=/share/gcc-%{gcc_major}/%{cygwin_aarch64_target}/python
 
 popd
