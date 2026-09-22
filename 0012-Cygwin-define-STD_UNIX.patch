@@ -1,7 +1,7 @@
-From 245f150a3a1bab5e656028bf6d4e6d431e376adc Mon Sep 17 00:00:00 2001
+From 7f1c8a1ba06b1e75636de42d1a5ece9e7d93cbbf Mon Sep 17 00:00:00 2001
 From: Jonathan Yong <10walls@gmail.com>
 Date: Tue, 8 Sep 2020 15:26:02 +0200
-Subject: [PATCH 12/12] Cygwin: define STD_UNIX
+Subject: [PATCH 12/13] Cygwin: define STD_UNIX
 
 ---
  gcc/config/i386/cygwin.h | 4 +---

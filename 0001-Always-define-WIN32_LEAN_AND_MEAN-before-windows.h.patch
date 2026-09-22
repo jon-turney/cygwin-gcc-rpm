@@ -1,7 +1,7 @@
-From 29a9b3e8a068f3c92f92c6afef6ae75f7773f15d Mon Sep 17 00:00:00 2001
+From 4ff127a57b6cd842d443be5df55f0fa5a2fb8b46 Mon Sep 17 00:00:00 2001
 From: LIU Hao <lh_mouse@126.com>
 Date: Fri, 6 Jan 2023 23:18:15 +0800
-Subject: [PATCH 01/12] Always define `WIN32_LEAN_AND_MEAN` before <windows.h>
+Subject: [PATCH 01/13] Always define `WIN32_LEAN_AND_MEAN` before <windows.h>
 
 Recently, mingw-w64 has got updated <msxml.h> from Wine which is included
 indirectly by <windows.h> if `WIN32_LEAN_AND_MEAN` is not defined. The

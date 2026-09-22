@@ -1,8 +1,9 @@
-From 9e42bd4983207bb8604695a94255f71a9a506a94 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Radek=20Barto=C5=88?= <radek.barton@microsoft.com>
 Date: Mon, 8 Jan 2024 11:29:33 +0100
-Subject: [PATCH 11/38] Fix missing aarch64 opt.url files after rebase.
+Subject: [PATCH 09/29] Fix missing aarch64 opt.url files after rebase.
 
+(cherry picked from commit 2c51d16aa317adeaa4afa03e1fb3d48d15cf8e8c)
 ---
  gcc/config/aarch64/cygming.opt.urls | 29 +++++++++++++++++++++++++++++
  gcc/config/aarch64/mingw.opt.urls   |  9 +++++++++
@@ -12,7 +13,7 @@ Subject: [PATCH 11/38] Fix missing aarch64 opt.url files after rebase.
 
 diff --git a/gcc/config/aarch64/cygming.opt.urls b/gcc/config/aarch64/cygming.opt.urls
 new file mode 100644
-index 000000000000..64eb1dbb1a0b
+index 00000000000..64eb1dbb1a0
 --- /dev/null
 +++ b/gcc/config/aarch64/cygming.opt.urls
 @@ -0,0 +1,29 @@
@@ -47,7 +48,7 @@ index 000000000000..64eb1dbb1a0b
 +
 diff --git a/gcc/config/aarch64/mingw.opt.urls b/gcc/config/aarch64/mingw.opt.urls
 new file mode 100644
-index 000000000000..e744a9b14784
+index 00000000000..e744a9b1478
 --- /dev/null
 +++ b/gcc/config/aarch64/mingw.opt.urls
 @@ -0,0 +1,9 @@
@@ -60,6 +61,3 @@ index 000000000000..e744a9b14784
 +Wpedantic-ms-format
 +UrlSuffix(gcc/Warning-Options.html#index-Wno-pedantic-ms-format)
 +
--- 
-2.51.0
-

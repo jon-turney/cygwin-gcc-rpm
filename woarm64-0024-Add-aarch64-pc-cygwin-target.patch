@@ -1,9 +1,10 @@
-From d8748e0da8c50069b4f0a140914c1915e8b6b80b Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Radek=20Barto=C5=88?= <radek.barton@microsoft.com>
 Date: Tue, 3 Dec 2024 15:07:05 +0100
-Subject: [PATCH 28/38] Add `aarch64-pc-cygwin` target
+Subject: [PATCH 24/29] Add `aarch64-pc-cygwin` target
 
 Co-authored-by: Evgeny Karpov <eukarpov@gmail.com>
+(cherry picked from commit f7c91f8df62ff122fee96c353c7f70728e7857da)
 ---
  config.guess                 |  3 +++
  gcc/config.build             |  2 +-
@@ -19,7 +20,7 @@ Co-authored-by: Evgeny Karpov <eukarpov@gmail.com>
  11 files changed, 77 insertions(+), 13 deletions(-)
 
 diff --git a/config.guess b/config.guess
-index 1972fda8eb05..f7c9844b8824 100755
+index 1972fda8eb0..f7c9844b882 100755
 --- a/config.guess
 +++ b/config.guess
 @@ -911,6 +911,9 @@ EOF
@@ -33,7 +34,7 @@ index 1972fda8eb05..f7c9844b8824 100755
  	echo x86_64-pc-cygwin
  	exit ;;
 diff --git a/gcc/config.build b/gcc/config.build
-index a238012e5390..f10e359dde3c 100644
+index a238012e539..f10e359dde3 100644
 --- a/gcc/config.build
 +++ b/gcc/config.build
 @@ -53,7 +53,7 @@ case $build in
@@ -46,10 +47,10 @@ index a238012e5390..f10e359dde3c 100644
      build_exeext=.exe
      ;;
 diff --git a/gcc/config.gcc b/gcc/config.gcc
-index b9160c5c20e2..5fd84e35f8ad 100644
+index 8989a4d0872..31b1d74bb37 100644
 --- a/gcc/config.gcc
 +++ b/gcc/config.gcc
-@@ -1321,6 +1321,36 @@ aarch64*-*-gnu*)
+@@ -1314,6 +1314,36 @@ aarch64*-*-gnu*)
          tmake_file="${tmake_file} aarch64/t-aarch64"
          tm_defines="${tm_defines}  TARGET_DEFAULT_ASYNC_UNWIND_TABLES=1"
  	;;
@@ -87,10 +88,10 @@ index b9160c5c20e2..5fd84e35f8ad 100644
  	tm_file="${tm_file} aarch64/aarch64-abi-ms.h"
  	tm_file="${tm_file} aarch64/aarch64-coff.h"
 diff --git a/gcc/config.host b/gcc/config.host
-index b2104fef472a..4f052482ffa2 100644
+index 516d654a25e..e33a6625554 100644
 --- a/gcc/config.host
 +++ b/gcc/config.host
-@@ -228,7 +228,7 @@ case ${host} in
+@@ -232,7 +232,7 @@ case ${host} in
          ;;
      esac
      ;;
@@ -100,7 +101,7 @@ index b2104fef472a..4f052482ffa2 100644
      out_host_hook_obj=host-cygwin.o
      host_xmake_file="${host_xmake_file} i386/x-cygwin"
 diff --git a/gcc/config/aarch64/cygming.h b/gcc/config/aarch64/cygming.h
-index 52be7adad2f9..014132a35bc4 100644
+index 52be7adad2f..014132a35bc 100644
 --- a/gcc/config/aarch64/cygming.h
 +++ b/gcc/config/aarch64/cygming.h
 @@ -140,21 +140,14 @@ still needed for compilation.  */
@@ -127,7 +128,7 @@ index 52be7adad2f9..014132a35bc4 100644
    while (0)
  
 diff --git a/gcc/config/i386/cygwin-w64.h b/gcc/config/i386/cygwin-w64.h
-index 5293201f7477..ac6b4858d966 100644
+index 5293201f747..ac6b4858d96 100644
 --- a/gcc/config/i386/cygwin-w64.h
 +++ b/gcc/config/i386/cygwin-w64.h
 @@ -50,7 +50,11 @@ along with GCC; see the file COPYING3.  If not see
@@ -143,7 +144,7 @@ index 5293201f7477..ac6b4858d966 100644
  
  #undef MULTILIB_DEFAULTS
 diff --git a/gcc/config/mingw/mingw32.h b/gcc/config/mingw/mingw32.h
-index 1d319b77bf83..40606006f660 100644
+index 1d319b77bf8..40606006f66 100644
 --- a/gcc/config/mingw/mingw32.h
 +++ b/gcc/config/mingw/mingw32.h
 @@ -42,6 +42,12 @@ along with GCC; see the file COPYING3.  If not see
@@ -169,10 +170,10 @@ index 1d319b77bf83..40606006f660 100644
  	  builtin_define ("__MINGW64__");			\
  	  builtin_define_std ("WIN64");				\
 diff --git a/gcc/configure b/gcc/configure
-index ef780a23c2fd..cfc399347dda 100755
+index 43ca45144b8..24453f71b77 100755
 --- a/gcc/configure
 +++ b/gcc/configure
-@@ -29366,7 +29366,7 @@ fi
+@@ -29455,7 +29455,7 @@ fi
  
      ;;
  
@@ -182,10 +183,10 @@ index ef780a23c2fd..cfc399347dda 100755
        cygwin*)
  	# Full C++ conformance when using a shared libstdc++-v3 requires some
 diff --git a/gcc/configure.ac b/gcc/configure.ac
-index cdf2997cb5f8..a5a184dfe5ba 100644
+index 075b6b68ffa..030f8f129ce 100644
 --- a/gcc/configure.ac
 +++ b/gcc/configure.ac
-@@ -4807,7 +4807,7 @@ EOF
+@@ -4860,7 +4860,7 @@ EOF
      ;;
  
  changequote(,)dnl
@@ -195,10 +196,10 @@ index cdf2997cb5f8..a5a184dfe5ba 100644
      case $target_os in
        cygwin*)
 diff --git a/libgcc/config.host b/libgcc/config.host
-index 1a5c07ae5e49..64ebcf4ecd48 100644
+index ab1799108b4..0ae68b669f1 100644
 --- a/libgcc/config.host
 +++ b/libgcc/config.host
-@@ -858,6 +858,30 @@ i[34567]86-*-solaris2* | x86_64-*-solaris2*)
+@@ -866,6 +866,30 @@ i[34567]86-*-solaris2* | x86_64-*-solaris2*)
  	;;
  i[4567]86-wrs-vxworks*|x86_64-wrs-vxworks*)
  	;;
@@ -230,7 +231,7 @@ index 1a5c07ae5e49..64ebcf4ecd48 100644
  	extra_parts="crtbegin.o crtbeginS.o crtend.o crtfastmath.o"
  	if test x$enable_vtable_verify = xyes; then
 diff --git a/libitm/libitm.h b/libitm/libitm.h
-index aabaf9db8bbb..915530e48311 100644
+index aabaf9db8bb..915530e4831 100644
 --- a/libitm/libitm.h
 +++ b/libitm/libitm.h
 @@ -45,7 +45,11 @@ extern "C" {
@@ -245,6 +246,3 @@ index aabaf9db8bbb..915530e48311 100644
  #ifdef _GLIBCXX_NOTHROW
  # define _ITM_NOTHROW _GLIBCXX_NOTHROW
  #elif !defined (__cplusplus)
--- 
-2.51.0
-

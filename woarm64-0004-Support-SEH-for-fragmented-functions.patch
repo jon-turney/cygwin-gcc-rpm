@@ -1,15 +1,16 @@
-From 1957b885a1302aed6e9248a8889c7b4c8443c108 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Evgeny Karpov <eukarpov@gmail.com>
 Date: Fri, 7 Mar 2025 11:14:10 +0100
-Subject: [PATCH 05/38] Support SEH for fragmented functions Fix SEH target
+Subject: [PATCH 04/29] Support SEH for fragmented functions Fix SEH target
  configuration
 
+(cherry picked from commit 521c1602b1987490a2d9e2fabbd7582b52db2478)
 ---
  libstdc++-v3/libsupc++/eh_personality.cc | 6 ++++++
  1 file changed, 6 insertions(+)
 
 diff --git a/libstdc++-v3/libsupc++/eh_personality.cc b/libstdc++-v3/libsupc++/eh_personality.cc
-index 10458318f88e..765079cad487 100644
+index 10458318f88..765079cad48 100644
 --- a/libstdc++-v3/libsupc++/eh_personality.cc
 +++ b/libstdc++-v3/libsupc++/eh_personality.cc
 @@ -505,6 +505,12 @@ PERSONALITY_FUNCTION (int version,
@@ -25,6 +26,3 @@ index 10458318f88e..765079cad487 100644
        // The table is sorted, so if we've passed the ip, stop.
        if (ip < info.Start + cs_start)
  	p = info.action_table;
--- 
-2.51.0
-

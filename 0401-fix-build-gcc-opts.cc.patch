@@ -1,7 +1,7 @@
-From 6871b3adf46056f211f3a2265cb5ae0f88f33954 Mon Sep 17 00:00:00 2001
+From 2d8557e0a3479db551fc9d074f1e0ba444ea9cf5 Mon Sep 17 00:00:00 2001
 From: Achim Gratz <Achim.Gratz@Stromeko.DE>
 Date: Mon, 10 Feb 2025 18:45:54 +0100
-Subject: [PATCH 401/402] fix build: gcc/opts.cc
+Subject: [PATCH 401/403] fix build: gcc/opts.cc
 
 ---
  gcc/opts.cc | 3 +++

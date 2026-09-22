@@ -1,15 +1,19 @@
 %global __os_install_post /usr/lib/rpm/brp-compress %{nil}
 
+%global snapshot_commit 001f9af67f1adad05abcf9b3e83ecee163fa0f13
+%global snapshot_shortcommit %(echo %{snapshot_commit} | cut -c1-8)
+%global snapshot_date 20260922
+
 # Set this to 1 when cygwin and cygwin-w32api-runtime packages aren't built
 # yet. Bootstrap mode builds just enough gcc to build those.
 %global bootstrap 0
 
-%global gcc_major 16
-%global gcc_minor 1
+%global gcc_major 17
+%global gcc_minor 0
 %global gcc_micro 0
 # Note, gcc_release must be integer, if you want to add suffixes to
 # %%{release}, append them after %%{gcc_release} on Release: line.
-%global gcc_release 3
+%global gcc_release 0
 
 %global _performance_build 1
 # Hardening slows the compiler way too much.
@@ -22,7 +26,11 @@
 
 Name:           cygwin-gcc
 Version:        %{gcc_major}.%{gcc_minor}.%{gcc_micro}
+%if "%{?snapshot_commit}" != ""
+Release:        %{gcc_release}.%{snapshot_date}.%{snapshot_shortcommit}%{?dist}
+%else
 Release:        %{gcc_release}%{?dist}
+%endif
 Summary:        Cygwin GCC cross-compiler
 
 License:        GPLv3+ and GPLv3+ with exceptions and GPLv2+ with exceptions
@@ -73,60 +81,57 @@ BuildRequires:  zlib-devel
 BuildRequires:  flex
 BuildRequires:  gettext
 
+%if "%{?snapshot_commit}" != ""
+Source0:        gcc.%{snapshot_commit}.tar.gz
+%else
 Source0:        https://gcc.gnu.org/pub/gcc/releases/gcc-%{version}/gcc-%{version}.tar.xz
+%endif
 
 # Cygwin patches
-Patch1:		0001-Always-define-WIN32_LEAN_AND_MEAN-before-windows.h.patch
-Patch2:		0002-add-m-no-align-vector-insn-option-for-i386.patch
-Patch3:		0003-Cygwin-use-SysV-ABI-on-x86_64.patch
-Patch4:		0004-Cygwin-add-dummy-pthread-tsaware-and-large-address-a.patch
-Patch5:		0005-Cygwin-handle-dllimport-properly-in-medium-model-V2.patch
-Patch6:		0006-Cygwin-MinGW-skip-test.patch
-Patch7:		0007-Cygwin-define-RTS_CONTROL_ENABLE-and-DTR_CONTROL_ENA.patch
-Patch8:		0008-Cygwin-__cxa-atexit.patch
-Patch9:		0009-Cygwin-libgomp-soname.patch
-Patch10:	0010-Cygwin-g-time.patch
-Patch11:	0011-Cygwin-newlib-ftm.patch
-Patch12:	0012-Cygwin-define-STD_UNIX.patch
+Patch1:         0001-Always-define-WIN32_LEAN_AND_MEAN-before-windows.h.patch
+Patch2:         0002-add-m-no-align-vector-insn-option-for-i386.patch
+Patch3:         0003-Cygwin-use-SysV-ABI-on-x86_64.patch
+Patch4:         0004-Cygwin-add-dummy-pthread-tsaware-and-large-address-a.patch
+Patch5:         0005-Cygwin-handle-dllimport-properly-in-medium-model-V2.patch
+Patch6:         0006-Cygwin-MinGW-skip-test.patch
+Patch7:         0007-Cygwin-define-RTS_CONTROL_ENABLE-and-DTR_CONTROL_ENA.patch
+Patch8:         0008-Cygwin-__cxa-atexit.patch
+Patch9:         0009-Cygwin-libgomp-soname.patch
+Patch10:        0010-Cygwin-g-time.patch
+Patch11:        0011-Cygwin-newlib-ftm.patch
+Patch12:        0012-Cygwin-define-STD_UNIX.patch
+Patch13:        0013-Cygwin-libstdc-fix-a-handle-leak-in-mutex_base.patch
 
-Patch400:	0401-libstdc-Cygwin-fix-a-handle-leak-in-mutex_base.patch
 Patch401:	0401-fix-build-gcc-opts.cc.patch
 Patch402:	0402-fix-build-libcpp-lex.cc.patch
 Patch403:	0403-fix-build-adaint.c.patch
 
-# current patch set of Evgeny Karpov, very approximately rebased onto 16.1.0
-Patch501:	0501-aarch64-Bypass-some-warnings-in-MinGW.patch
-Patch502:	0502-aarch64-Add-stdcall-and-cdecl-attributes.patch
-Patch503:	0503-Rename-SEH-functions-for-reuse-in-AArch64.patch
-Patch504:	0504-aarch64-Add-SEH-stack-unwinding-and-C-exceptions.patch
-Patch505:	0505-Support-SEH-for-fragmented-functions.patch
-Patch506:	0506-Fix-unwiding-code-for-a-floating-point-register-pair.patch
-Patch507:	0507-Fix-unwiding-codes-when-stack-probing-is-applied.patch
-Patch508:	0508-Rebase-woarm64-aarch64-pe-target-prototype.patch
-Patch509:	0509-Fix-build-on-x86_64-pc-linux-gnu-when-host-is-aarch6.patch
-Patch510:	0510-Fix-undefined-reference-to-mingw-10.patch
-Patch511:	0511-Fix-missing-aarch64-opt.url-files-after-rebase.patch
-Patch512:	0512-Fix-undefined-references-to-__gthr_win32_-shared-lib.patch
-Patch513:	0513-Build-configuration-fixes-to-enable-native-aarch64-w.patch
-Patch514:	0514-Allow-some-warnings-when-building-libgcc-36.patch
-Patch515:	0515-Fix-build-of-winnt-d.cc-when-D-language-is-enabled.-.patch
+# mcw patchset
+Patch501:       woarm64-0001-aarch64-Bypass-some-warnings-in-MinGW.patch
+Patch502:       woarm64-0002-aarch64-Add-stdcall-and-cdecl-attributes.patch
+Patch503:       woarm64-0003-aarch64-Add-SEH-stack-unwinding-and-C-exceptions.patch
+Patch504:       woarm64-0004-Support-SEH-for-fragmented-functions.patch
+Patch505:       woarm64-0005-Fix-unwiding-code-for-a-floating-point-register-pair.patch
+Patch506:       woarm64-0006-Fix-unwiding-codes-when-stack-probing-is-applied.patch
+Patch507:       woarm64-0007-Rebase-woarm64-aarch64-pe-target-prototype.patch
+Patch508:       woarm64-0008-Fix-undefined-reference-to-mingw-10.patch
+Patch509:       woarm64-0009-Fix-missing-aarch64-opt.url-files-after-rebase.patch
+Patch510:       woarm64-0010-Fix-undefined-references-to-__gthr_win32_-shared-lib.patch
+Patch511:       woarm64-0011-Build-configuration-fixes-to-enable-native-aarch64-w.patch
+Patch512:       woarm64-0012-Allow-some-warnings-when-building-libgcc-36.patch
+Patch513:       woarm64-0013-Fix-build-of-winnt-d.cc-when-D-language-is-enabled.-.patch
+Patch524:       woarm64-0024-Add-aarch64-pc-cygwin-target.patch
+Patch525:       woarm64-0025-Add-support-for-shared-attribute-41.patch
+Patch526:       woarm64-0026-mingw-use-mingw_pe_seh_emit_stackalloc-in-seh_patter.patch
+Patch527:       woarm64-0027-aarch64-build-aarch64-abi-ms.o-for-the-cygwin-target.patch
+Patch528:       woarm64-0028-libgcc-do-not-build-soft-fp-for-aarch64-pc-cygwin.patch
+Patch529:       woarm64-0029-aarch64-mingw-emit-d-form-register-names-for-.seh_sa.patch
 
-Patch528:	0528-Add-aarch64-pc-cygwin-target.patch
-Patch529:	0529-Change-long-double-to-64bit-3.patch
-Patch530:	0530-Fix.patch
-Patch531:	0531-Add-support-for-shared-attribute-41.patch
-Patch532:	0532-Fix-some-configuration-checks-ignored-for-aarch64-by.patch
-Patch533:	0533-Resolve-compilation-issue-on-aarch64-pc-cygwin.patch
-Patch534:	0534-Fix-unwinding-for-nonconsecutive-registers-2.patch
-Patch535:	0535-Add-SEH-unwinding-support-for-UNSPEC_STP-4.patch
-Patch536:	0536-Fix-aarch64-unwinding-with-debugger-attached-3.patch
-Patch537:	0537-Add-MS-variadic-ABI-support-to-aarch64-pc-cygwin-tar.patch
-Patch538:	0538-Disable-float80.patch
-Patch539:	0001-libgcc-select-Win32-enable-execute-stack-on-Win32-aa.patch
-Patch540:	0003-Workaound-unable-to-emulate-TF-error.patch
+# additional patches
+Patch539:       0539-libgcc-select-Win32-enable-execute-stack-on-Win32-aa.patch
 
 # Bootstrapping patches
-Patch601:       0001-libgcc-Respect-inhibit_libc-in-enable-execute-stack-.patch
+Patch601:       0601-libgcc-Respect-inhibit_libc-in-enable-execute-stack-.patch
 
 # Fedora-specific patches
 Patch1001:      1001-textdomain.patch
@@ -352,7 +357,14 @@ Cygwin aarch64 cross-compiler for FORTRAN.
 
 
 %prep
-%autosetup -n gcc-%{version} -p1
+
+%if "%{?snapshot_commit}" != ""
+%define dir gcc-%{snapshot_commit}
+%else
+%define dir gcc-%{version}
+%endif
+
+%autosetup -n %{dir} -p1
 
 echo 'Fedora Cygwin %{version}-%{gcc_release}' > gcc/DEV-PHASE
 
@@ -879,6 +891,9 @@ cat cygwin-cpplib.lang >> cygwin-gcc.lang
 
 
 %changelog
+* Tue Sep 22 2026 Jon Turney <jon.turney@dronecode.org.uk> - 17.0.0-0
+- new version
+
 * Thu Sep 17 2026 Jon Turney <jon.turney@dronecode.org.uk> - 16.1.0-3
 - full build without bootstrap
 

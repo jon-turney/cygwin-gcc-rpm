@@ -1,7 +1,7 @@
-From 8334fde82a832b87bf110d239c8c66bf18f291e2 Mon Sep 17 00:00:00 2001
+From 44ac9c8214fe7c6b669e22ce90e9c0138d3675ce Mon Sep 17 00:00:00 2001
 From: Jonathan Yong <10walls@gmail.com>
 Date: Thu, 30 Oct 2014 17:15:02 +0800
-Subject: [PATCH 08/12] Cygwin: __cxa-atexit
+Subject: [PATCH 08/13] Cygwin: __cxa-atexit
 
 ---
  gcc/config.gcc                        | 1 +
@@ -9,10 +9,10 @@ Subject: [PATCH 08/12] Cygwin: __cxa-atexit
  2 files changed, 8 insertions(+)
 
 diff --git a/gcc/config.gcc b/gcc/config.gcc
-index 14b1e9b87e3..9cee1a3efa9 100644
+index 743421768ea..7ed6fe56991 100644
 --- a/gcc/config.gcc
 +++ b/gcc/config.gcc
-@@ -2911,6 +2911,7 @@ mipstx39-*-elf* | mipstx39el-*-elf*)
+@@ -2913,6 +2913,7 @@ mipstx39-*-elf* | mipstx39el-*-elf*)
  mmix-knuth-mmixware)
  	tm_file="${tm_file} newlib-stdint.h"
  	use_gcc_stdint=wrap

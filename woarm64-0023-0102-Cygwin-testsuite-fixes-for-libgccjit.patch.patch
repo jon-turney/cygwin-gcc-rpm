@@ -1,8 +1,9 @@
-From 80d821d816a1bde4bccbd6c0e8c4e0a9a909afe0 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Radek=20Barto=C5=88?= <radek.barton@microsoft.com>
 Date: Tue, 3 Dec 2024 14:57:14 +0100
-Subject: [PATCH 27/38] 0102-Cygwin-testsuite-fixes-for-libgccjit.patch
+Subject: [PATCH 23/29] 0102-Cygwin-testsuite-fixes-for-libgccjit.patch
 
+(cherry picked from commit 012f096997dac85ce8b0950e352b350742098575)
 ---
  gcc/testsuite/jit.dg/jit.exp                           | 10 +++++-----
  gcc/testsuite/jit.dg/test-compile-to-assembler.c       |  2 +-
@@ -12,7 +13,7 @@ Subject: [PATCH 27/38] 0102-Cygwin-testsuite-fixes-for-libgccjit.patch
  5 files changed, 10 insertions(+), 10 deletions(-)
 
 diff --git a/gcc/testsuite/jit.dg/jit.exp b/gcc/testsuite/jit.dg/jit.exp
-index 57b133b6d8c6..547518cb9ec4 100644
+index 57b133b6d8c..547518cb9ec 100644
 --- a/gcc/testsuite/jit.dg/jit.exp
 +++ b/gcc/testsuite/jit.dg/jit.exp
 @@ -495,7 +495,7 @@ proc jit-dg-test { prog do_what extra_tool_flags } {
@@ -61,7 +62,7 @@ index 57b133b6d8c6..547518cb9ec4 100644
  
      # Invoke the driver to build the test executable
 diff --git a/gcc/testsuite/jit.dg/test-compile-to-assembler.c b/gcc/testsuite/jit.dg/test-compile-to-assembler.c
-index e3a6d2edd208..6321402e20ea 100644
+index e3a6d2edd20..6321402e20e 100644
 --- a/gcc/testsuite/jit.dg/test-compile-to-assembler.c
 +++ b/gcc/testsuite/jit.dg/test-compile-to-assembler.c
 @@ -10,4 +10,4 @@
@@ -71,7 +72,7 @@ index e3a6d2edd208..6321402e20ea 100644
 -/* { dg-final { jit-verify-assembler "hello from ./output-of-test-compile-to-assembler.c.s.exe" } } */
 +/* { dg-final { jit-verify-assembler "hello from ./output-of-test-compile-to-assembler.c.s.xsx" } } */
 diff --git a/gcc/testsuite/jit.dg/test-compile-to-dynamic-library.c b/gcc/testsuite/jit.dg/test-compile-to-dynamic-library.c
-index c29e6f6d6289..ead2085d3036 100644
+index c29e6f6d628..ead2085d303 100644
 --- a/gcc/testsuite/jit.dg/test-compile-to-dynamic-library.c
 +++ b/gcc/testsuite/jit.dg/test-compile-to-dynamic-library.c
 @@ -63,4 +63,4 @@ create_code (gcc_jit_context *ctxt, void *user_data)
@@ -81,7 +82,7 @@ index c29e6f6d6289..ead2085d3036 100644
 -/* { dg-final { jit-verify-dynamic-library "hello from ./verify-dynamic-library.c.exe" } } */
 +/* { dg-final { jit-verify-dynamic-library "hello from ./verify-dynamic-library.c.xdx" } } */
 diff --git a/gcc/testsuite/jit.dg/test-compile-to-executable.c b/gcc/testsuite/jit.dg/test-compile-to-executable.c
-index 2fb0bd91cc92..f9c5c583aae5 100644
+index 2fb0bd91cc9..f9c5c583aae 100644
 --- a/gcc/testsuite/jit.dg/test-compile-to-executable.c
 +++ b/gcc/testsuite/jit.dg/test-compile-to-executable.c
 @@ -5,9 +5,9 @@
@@ -97,7 +98,7 @@ index 2fb0bd91cc92..f9c5c583aae5 100644
 -/* { dg-final { jit-verify-executable "hello from ./output-of-test-compile-to-executable.c.exe" } } */
 +/* { dg-final { jit-verify-executable "hello from ./output-of-test-compile-to-executable.c.xcx" } } */
 diff --git a/gcc/testsuite/jit.dg/test-compile-to-object.c b/gcc/testsuite/jit.dg/test-compile-to-object.c
-index 81d41c21d402..56914cf9e202 100644
+index 81d41c21d40..56914cf9e20 100644
 --- a/gcc/testsuite/jit.dg/test-compile-to-object.c
 +++ b/gcc/testsuite/jit.dg/test-compile-to-object.c
 @@ -10,4 +10,4 @@
@@ -106,6 +107,3 @@ index 81d41c21d402..56914cf9e202 100644
  /* { dg-final { jit-verify-output-file-was-created "" } } */
 -/* { dg-final { jit-verify-object "hello from ./output-of-test-compile-to-object.c.o.exe" } } */
 +/* { dg-final { jit-verify-object "hello from ./output-of-test-compile-to-object.c.o.xox" } } */
--- 
-2.51.0
-

@@ -1,7 +1,7 @@
-From 980b93663fec0d657f2ece05a95076e5bfaa1c18 Mon Sep 17 00:00:00 2001
+From 9ad08403f73f62ff9eebb7fd6da16eb9f7fb78b7 Mon Sep 17 00:00:00 2001
 From: Jonathan Yong <10walls@gmail.com>
 Date: Tue, 8 Sep 2020 14:56:50 +0200
-Subject: [PATCH 05/12] Cygwin: handle dllimport properly in medium model V2
+Subject: [PATCH 05/13] Cygwin: handle dllimport properly in medium model V2
 
 ---
  gcc/config/i386/predicates.md | 5 +++++

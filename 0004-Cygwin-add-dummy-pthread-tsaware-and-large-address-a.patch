@@ -1,7 +1,7 @@
-From 2b5b5f07cc488a1e46d893b5463c4276a2d0d0ee Mon Sep 17 00:00:00 2001
+From 1c076b665764e711e222406a053f908a4f6a4b1b Mon Sep 17 00:00:00 2001
 From: Jonathan Yong <10walls@gmail.com>
 Date: Sat, 28 Jun 2014 09:44:48 +0800
-Subject: [PATCH 04/12] Cygwin: add dummy -pthread, -tsaware and
+Subject: [PATCH 04/13] Cygwin: add dummy -pthread, -tsaware and
  --large-address-aware for executables only
 
 ---

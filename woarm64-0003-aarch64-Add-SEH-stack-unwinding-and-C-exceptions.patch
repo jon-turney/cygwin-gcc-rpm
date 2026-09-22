@@ -1,7 +1,7 @@
-From d17c53da0b5f99460c670e94f45991ff3c4d711e Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Evgeny Karpov <eukarpov@gmail.com>
 Date: Fri, 15 Nov 2024 13:14:18 +0100
-Subject: [PATCH 04/38] aarch64: Add SEH, stack unwinding and C++ exceptions.
+Subject: [PATCH 03/29] aarch64: Add SEH, stack unwinding and C++ exceptions.
 
 This patch reuses the existing SEH, stack unwinding and C++ exceptions
 from ix86 and implements the required changes for AArch64.
@@ -43,19 +43,21 @@ libgcc/ChangeLog:
 	* config.host: Support AArch64.
 	* unwind-seh.c (defined): Likewise.
 	(_Unwind_Backtrace): Likewise.
+
+(cherry picked from commit 4968b06a12c15660cc4e997480e65011e250bcf9)
 ---
  gcc/common/config/aarch64/aarch64-common.cc |  30 +++
  gcc/config/aarch64/aarch64.cc               |  15 ++
  gcc/config/aarch64/cygming.h                |  51 +++-
- gcc/config/mingw/winnt.cc                   | 260 +++++++++++++++++++-
+ gcc/config/mingw/winnt.cc                   | 256 ++++++++++++++++++++
  libgcc/unwind-seh.c                         |  37 ++-
- 5 files changed, 381 insertions(+), 12 deletions(-)
+ 5 files changed, 379 insertions(+), 10 deletions(-)
 
 diff --git a/gcc/common/config/aarch64/aarch64-common.cc b/gcc/common/config/aarch64/aarch64-common.cc
-index ae467f140e3c..069d401e3584 100644
+index d38ddb41c59..a961b24fe6f 100644
 --- a/gcc/common/config/aarch64/aarch64-common.cc
 +++ b/gcc/common/config/aarch64/aarch64-common.cc
-@@ -838,6 +838,36 @@ is_host_cpu_not_armv8_base (int argc, const char **argv)
+@@ -842,6 +842,36 @@ is_host_cpu_not_armv8_base (int argc, const char **argv)
    return "";
  }
  
@@ -93,10 +95,10 @@ index ae467f140e3c..069d401e3584 100644
  
  #undef AARCH64_CPU_NAME_LENGTH
 diff --git a/gcc/config/aarch64/aarch64.cc b/gcc/config/aarch64/aarch64.cc
-index 5d64ef70dc35..0fb02401777f 100644
+index abd207fb3dd..5afe5d12d54 100644
 --- a/gcc/config/aarch64/aarch64.cc
 +++ b/gcc/config/aarch64/aarch64.cc
-@@ -13677,6 +13677,12 @@ aarch64_label_mentioned_p (rtx x)
+@@ -13899,6 +13899,12 @@ aarch64_label_mentioned_p (rtx x)
    return 0;
  }
  
@@ -109,7 +111,7 @@ index 5d64ef70dc35..0fb02401777f 100644
  /* Implement REGNO_REG_CLASS.  */
  
  enum reg_class
-@@ -19597,6 +19603,12 @@ aarch64_override_options_after_change_1 (struct gcc_options *opts)
+@@ -19988,6 +19994,12 @@ aarch64_override_options_after_change_1 (struct gcc_options *opts)
       intermediary step for the former.  */
    if (flag_mlow_precision_sqrt)
      flag_mrecip_low_precision_sqrt = true;
@@ -122,7 +124,7 @@ index 5d64ef70dc35..0fb02401777f 100644
  }
  
  /* 'Unpack' up the internal tuning structs and update the options
-@@ -26333,6 +26345,9 @@ aarch64_declare_function_name (FILE *stream, const char* name,
+@@ -26969,6 +26981,9 @@ aarch64_declare_function_name (FILE *stream, const char* name,
  
    /* Don't forget the type directive for ELF.  */
    ASM_OUTPUT_TYPE_DIRECTIVE (stream, name, "function");
@@ -133,7 +135,7 @@ index 5d64ef70dc35..0fb02401777f 100644
  
    cfun->machine->label_is_assembled = true;
 diff --git a/gcc/config/aarch64/cygming.h b/gcc/config/aarch64/cygming.h
-index bb3c750df69b..2c76b07d2f20 100644
+index bb3c750df69..2c76b07d2f2 100644
 --- a/gcc/config/aarch64/cygming.h
 +++ b/gcc/config/aarch64/cygming.h
 @@ -45,14 +45,39 @@ along with GCC; see the file COPYING3.  If not see
@@ -228,28 +230,10 @@ index bb3c750df69b..2c76b07d2f20 100644
  /* Define this to be nonzero if static stack checking is supported.  */
  #define STACK_CHECK_STATIC_BUILTIN 1
 diff --git a/gcc/config/mingw/winnt.cc b/gcc/config/mingw/winnt.cc
-index b2c4bffa17ce..8b5a3d0d782d 100644
+index 2e06b0e8146..c6f15e059eb 100644
 --- a/gcc/config/mingw/winnt.cc
 +++ b/gcc/config/mingw/winnt.cc
-@@ -169,6 +169,8 @@ mingw_pe_valid_dllimport_attribute_p (const_tree decl)
-    return true;
- }
- 
-+#if !defined (TARGET_AARCH64_MS_ABI)
-+
- /* Return string which is the function name, identified by ID, modified
-    with a suffix consisting of an atsign (@) followed by the number of
-    bytes of arguments.  If ID is NULL use the DECL_NAME as base. If
-@@ -224,8 +226,6 @@ gen_stdcall_or_fastcall_suffix (tree decl, tree id, bool fastcall)
-   return get_identifier (new_str);
- }
- 
--#if !defined (TARGET_AARCH64_MS_ABI)
--
- /* Maybe decorate and get a new identifier for the DECL of a stdcall or
-    fastcall function. The original identifier is supplied in ID. */
- 
-@@ -963,6 +963,11 @@ mingw_pe_seh_end_prologue (FILE *f)
+@@ -952,6 +952,11 @@ mingw_pe_seh_end_prologue (FILE *f)
  void
  mingw_pe_seh_cold_init (FILE *f, const char *name)
  {
@@ -261,7 +245,7 @@ index b2c4bffa17ce..8b5a3d0d782d 100644
    struct seh_frame_state *seh;
    HOST_WIDE_INT alloc_offset, offset;
  
-@@ -1086,6 +1091,15 @@ seh_emit_save (FILE *f, struct seh_frame_state *seh,
+@@ -1075,6 +1080,15 @@ seh_emit_save (FILE *f, struct seh_frame_state *seh,
  	       rtx reg, HOST_WIDE_INT cfa_offset)
  {
    const unsigned int regno = REGNO (reg);
@@ -277,7 +261,7 @@ index b2c4bffa17ce..8b5a3d0d782d 100644
    HOST_WIDE_INT offset;
  
    seh->reg_offset[regno] = cfa_offset;
-@@ -1110,8 +1124,12 @@ seh_emit_stackalloc (FILE *f, struct seh_frame_state *seh,
+@@ -1099,8 +1113,12 @@ mingw_pe_seh_emit_stackalloc (FILE *f, struct seh_frame_state *seh,
  {
    /* We're only concerned with prologue stack allocations, which all
       are subtractions from the stack pointer.  */
@@ -290,7 +274,7 @@ index b2c4bffa17ce..8b5a3d0d782d 100644
  
    if (seh->cfa_reg == stack_pointer_rtx)
      seh->cfa_offset += offset;
-@@ -1367,6 +1385,244 @@ i386_pe_seh_unwind_emit (FILE *out_file, rtx_insn *insn)
+@@ -1356,6 +1374,244 @@ i386_pe_seh_unwind_emit (FILE *out_file, rtx_insn *insn)
    seh_frame_related_expr (out_file, seh, pat);
  }
  
@@ -536,7 +520,7 @@ index b2c4bffa17ce..8b5a3d0d782d 100644
  mingw_pe_seh_emit_except_personality (rtx personality)
  {
 diff --git a/libgcc/unwind-seh.c b/libgcc/unwind-seh.c
-index ed0388547873..480a35e96ffa 100644
+index 3bd0c8a4e03..58354d6a358 100644
 --- a/libgcc/unwind-seh.c
 +++ b/libgcc/unwind-seh.c
 @@ -32,7 +32,7 @@
@@ -632,6 +616,3 @@ index ed0388547873..480a35e96ffa 100644
  	return _URC_END_OF_STACK;
      }
  }
--- 
-2.51.0
-

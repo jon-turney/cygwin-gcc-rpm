@@ -1,7 +1,7 @@
-From f930bafa0604d5b154e80a945d40f7dc2727cb49 Mon Sep 17 00:00:00 2001
+From c71cd276470ffa20f2ec6c7f3605d158ace3e909 Mon Sep 17 00:00:00 2001
 From: Jonathan Yong <10walls@gmail.com>
 Date: Sat, 28 Jun 2014 10:05:50 +0800
-Subject: [PATCH 07/12] Cygwin: define RTS_CONTROL_ENABLE and
+Subject: [PATCH 07/13] Cygwin: define RTS_CONTROL_ENABLE and
  DTR_CONTROL_ENABLE
 
 ---

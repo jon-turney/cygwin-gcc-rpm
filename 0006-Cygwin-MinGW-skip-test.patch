@@ -1,7 +1,7 @@
-From 441a7597173ac91a03c9392f07bf16b2dc5e9193 Mon Sep 17 00:00:00 2001
+From 42f2bb8bfcb05b060bbc99e283ee52833084855d Mon Sep 17 00:00:00 2001
 From: Jonathan Yong <10walls@gmail.com>
 Date: Sat, 28 Jun 2014 09:54:57 +0800
-Subject: [PATCH 06/12] Cygwin/MinGW: skip test
+Subject: [PATCH 06/13] Cygwin/MinGW: skip test
 
 ---
  gcc/testsuite/gcc.target/i386/pr25993.c | 2 +-

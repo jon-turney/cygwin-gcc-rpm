@@ -1,7 +1,7 @@
-From bab9ad931c2a76841ebcb82cc8c6afc2b89ac0b1 Mon Sep 17 00:00:00 2001
+From 735ace21234d130b8fd0661cebc87dcf8153647e Mon Sep 17 00:00:00 2001
 From: Jonathan Yong <10walls@gmail.com>
 Date: Tue, 8 Sep 2020 15:05:44 +0200
-Subject: [PATCH 09/12] Cygwin: libgomp soname
+Subject: [PATCH 09/13] Cygwin: libgomp soname
 
 ---
  libgomp/config/cygwin/plugin-suffix.h | 2 ++
@@ -67,10 +67,10 @@ index 46af75f978f..61729f65ffb 100644
  	config_path="mingw32 posix"
  	;;
 diff --git a/libgomp/target.c b/libgomp/target.c
-index 29e9a2c6367..4b3e189b9d2 100644
+index d562b0493ea..e14f96b5280 100644
 --- a/libgomp/target.c
 +++ b/libgomp/target.c
-@@ -6136,7 +6136,7 @@ gomp_target_fini (void)
+@@ -6159,7 +6159,7 @@ gomp_target_fini (void)
  static void
  gomp_target_init (void)
  {

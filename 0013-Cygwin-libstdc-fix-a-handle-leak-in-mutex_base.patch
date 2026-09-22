@@ -1,7 +1,7 @@
-From f3429b7ec960fea9df62bc3c14e257d60fe436f0 Mon Sep 17 00:00:00 2001
+From 02339a6653672a19f8728d76bf51d031064eac46 Mon Sep 17 00:00:00 2001
 From: Achim Gratz <Achim.Gratz@Stromeko.DE>
 Date: Sat, 21 Mar 2026 12:37:28 +0100
-Subject: [PATCH] libstdc++: Cygwin: fix a handle leak in mutex_base
+Subject: [PATCH 13/13] Cygwin: libstdc++: fix a handle leak in mutex_base
 
 Cygwin's pthreads implementation uses a non-trivial type for the
 mutex, so it needs a destructor.  Failing to do that will leak the
@@ -22,10 +22,10 @@ Suggested-by: Corinna Vinschen <corinna-cygwin@cygwin.com>
  1 file changed, 3 insertions(+)
 
 diff --git a/libstdc++-v3/include/bits/std_mutex.h b/libstdc++-v3/include/bits/std_mutex.h
-index 4693055269d..66155a616d3 100644
+index 7ef33fe5d0d..f060c75abf2 100644
 --- a/libstdc++-v3/include/bits/std_mutex.h
 +++ b/libstdc++-v3/include/bits/std_mutex.h
-@@ -65,6 +65,9 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
+@@ -68,6 +68,9 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
      __native_type  _M_mutex = __GTHREAD_MUTEX_INIT;
  
      constexpr __mutex_base() noexcept = default;

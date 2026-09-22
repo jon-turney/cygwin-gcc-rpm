@@ -1,17 +1,18 @@
-From e69e2512eb2ef0cac3fb6b47d51ac477d4775323 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Evgeny Karpov <eukarpov@gmail.com>
 Date: Wed, 19 Mar 2025 14:51:54 +0100
-Subject: [PATCH 06/38] Fix unwiding code for a floating-point register pair
+Subject: [PATCH 05/29] Fix unwiding code for a floating-point register pair
 
+(cherry picked from commit 8d99c9e9ef30c9f7729ea41e0296ec8c2f7aa281)
 ---
  gcc/config/mingw/winnt.cc | 26 +++++++++++++++++++-------
  1 file changed, 19 insertions(+), 7 deletions(-)
 
 diff --git a/gcc/config/mingw/winnt.cc b/gcc/config/mingw/winnt.cc
-index 8b5a3d0d782d..3de4c6a051c8 100644
+index c6f15e059eb..c2db97a921b 100644
 --- a/gcc/config/mingw/winnt.cc
 +++ b/gcc/config/mingw/winnt.cc
-@@ -1439,12 +1439,14 @@ seh_parallel_offset (rtx pat, HOST_WIDE_INT wanted_regnum)
+@@ -1428,12 +1428,14 @@ seh_parallel_offset (rtx pat, HOST_WIDE_INT wanted_regnum)
  static void
  seh_pattern_emit (FILE *f, struct seh_frame_state *seh, rtx pat)
  {
@@ -28,7 +29,7 @@ index 8b5a3d0d782d..3de4c6a051c8 100644
        int reg_count = 0;
        HOST_WIDE_INT increment = 0;
  
-@@ -1490,11 +1492,19 @@ seh_pattern_emit (FILE *f, struct seh_frame_state *seh, rtx pat)
+@@ -1479,11 +1481,19 @@ seh_pattern_emit (FILE *f, struct seh_frame_state *seh, rtx pat)
  
        if (reg_count == 2)
        {
@@ -53,7 +54,7 @@ index 8b5a3d0d782d..3de4c6a051c8 100644
        }
      }
    else
-@@ -1561,6 +1571,8 @@ seh_pattern_emit (FILE *f, struct seh_frame_state *seh, rtx pat)
+@@ -1550,6 +1560,8 @@ seh_pattern_emit (FILE *f, struct seh_frame_state *seh, rtx pat)
  	       && (GET_CODE (pat) == RETURN || GET_CODE (pat) == JUMP_INSN))
  	fputs ("\t.seh_endepilogue\n", f);
      }
@@ -62,6 +63,3 @@ index 8b5a3d0d782d..3de4c6a051c8 100644
  }
  
  /* This function looks at a single insn and emits any SEH directives
--- 
-2.51.0
-
