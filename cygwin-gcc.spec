@@ -359,12 +359,12 @@ Cygwin aarch64 cross-compiler for FORTRAN.
 %prep
 
 %if "%{?snapshot_commit}" != ""
-%define dir gcc-%{snapshot_commit}
+%define src_prefix gcc-%{snapshot_commit}
 %else
-%define dir gcc-%{version}
+%define src_prefix gcc-%{version}
 %endif
 
-%autosetup -n %{dir} -p1
+%autosetup -n %{src_prefix} -p1
 
 echo 'Fedora Cygwin %{version}-%{gcc_release}' > gcc/DEV-PHASE
 
@@ -468,7 +468,7 @@ CC="%{__cc} ${RPM_OPT_FLAGS}" \
 ../configure \
   $CONFIGURE_OPTS \
   --target=%{cygwin_aarch64_target} \
-  --with-arch=armv8.1-a -with-tune=cortex-x1 \
+  --with-arch=armv8-a --with-tune=cortex-a53 \
   --with-sysroot=%{cygwin_aarch64_sysroot} \
   --with-python-dir=/share/gcc-%{gcc_major}/%{cygwin_aarch64_target}/python
 
