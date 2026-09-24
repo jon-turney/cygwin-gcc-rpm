@@ -542,6 +542,10 @@ mv $RPM_BUILD_ROOT%{_prefix}/lib/gcc/%{cygwin_aarch64_target}/*.dll \
 # Don't want the *.la files.
 find $RPM_BUILD_ROOT -name '*.la' -delete
 
+# Don't want testsuite files
+rm -fr $RPM_BUILD_ROOT%{_prefix}/lib/gcc/%{cygwin32_target}/%{gcc_major}/testsuite/
+rm -fr $RPM_BUILD_ROOT%{_prefix}/lib/gcc/%{cygwin64_target}/%{gcc_major}/testsuite/
+rm -fr $RPM_BUILD_ROOT%{_prefix}/lib/gcc/%{cygwin_aarch64_target}/%{gcc_major}/testsuite/
 
 
 %find_lang cygwin-gcc
