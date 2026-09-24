@@ -480,7 +480,7 @@ popd
 %cygwin_make %{?_smp_mflags} all-gcc
 %cygwin_make all-target-libgcc CFLAGS_FOR_TARGET="-Dinhibit_libc"
 %else
-%cygwin_make %{?_smp_mflags} all
+%cygwin_make %{?_smp_mflags} all CFLAGS_FOR_TARGET="-O0" CXXFLAGS_FOR_TARGET="-O0"
 %endif
 
 
