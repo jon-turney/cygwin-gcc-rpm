@@ -129,6 +129,7 @@ Patch529:       woarm64-0029-aarch64-mingw-emit-d-form-register-names-for-.seh_s
 
 # additional patches
 Patch539:       0539-libgcc-select-Win32-enable-execute-stack-on-Win32-aa.patch
+Patch540:       0540-Fix-muse-libstdc-wrappers-on-aarch64-cygwin.patch
 
 # Bootstrapping patches
 Patch601:       0601-libgcc-Respect-inhibit_libc-in-enable-execute-stack-.patch

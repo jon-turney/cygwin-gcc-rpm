@@ -1,0 +1,58 @@
+From 504efe769ff0e0f3e4e3c6aef99ff3d87bf2d6a4 Mon Sep 17 00:00:00 2001
+From: Jon Turney <jon.turney@dronecode.org.uk>
+Date: Sat, 26 Sep 2026 20:16:48 +0100
+Subject: [PATCH] Fix -muse-libstdc-wrappers on aarch64-*-cygwin
+
+There are now two blocks guarded by aarch64-*-* in the "target
+CPU-specific assembler checks" case statement.
+
+The first checks for aarch64 specific gas flags.
+
+The second checks for x86, x86_64 and aarch, to gate if
+USE_CYGWIN_LIBSTDCXX_WRAPPERS is enabled (The "not x86, therefore cross"
+check there looks also a bit wonky: although probably gets the right
+answer; maybe the comment should say cross, or on an arch which has
+always had those wrappers)
+
+(and then goes on to do an actual assembler check to see if gas supports
+aligned .comm)
+
+(and then a whole lot of stuff which maybe isn't under the right
+condition?)
+
+Continue evaluating the case statment after the first block, so the
+second block gets to execute.
+---
+ gcc/configure    | 2 +-
+ gcc/configure.ac | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/gcc/configure b/gcc/configure
+index 24453f71b77..5c7fb712037 100755
+--- a/gcc/configure
++++ b/gcc/configure
+@@ -28968,7 +28968,7 @@ if test "${enable_fix_cortex_a53_843419+set}" = set; then :
+ 
+ fi
+ 
+-    ;;
++    ;;&
+ 
+   # All TARGET_ABI_OSF targets.
+   alpha*-*-linux* | alpha*-*-*bsd*)
+diff --git a/gcc/configure.ac b/gcc/configure.ac
+index 030f8f129ce..d458a263148 100644
+--- a/gcc/configure.ac
++++ b/gcc/configure.ac
+@@ -4687,7 +4687,7 @@ AS_HELP_STRING([--disable-fix-cortex-a53-843419],
+         esac
+       ],
+     [])
+-    ;;
++    ;;&
+ 
+   # All TARGET_ABI_OSF targets.
+   alpha*-*-linux* | alpha*-*-*bsd*)
+-- 
+2.51.0
+
